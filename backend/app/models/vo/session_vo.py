@@ -25,7 +25,6 @@ class SessionHistoryVO(BaseModel):
     """会话历史响应 VO。"""
 
     session_id: str
-    messages: list[dict]
     history: list[dict]
     history_count: int
 

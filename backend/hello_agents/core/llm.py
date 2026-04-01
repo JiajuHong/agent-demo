@@ -55,7 +55,8 @@ class HelloAgentsLLM:
         self.timeout = timeout or int(os.getenv("LLM_TIMEOUT", "60"))
 
         self.temperature = temperature
-        self.max_tokens = max_tokens
+        _env_max_tokens = os.getenv("max_tokens")
+        self.max_tokens = int(_env_max_tokens) if _env_max_tokens else max_tokens
         self.kwargs = kwargs
 
         # 验证必要参数
@@ -265,6 +266,48 @@ class HelloAgentsLLM:
         # 保存统计信息
         if hasattr(self._adapter, 'last_stats'):
             self.last_call_stats = self._adapter.last_stats
+
+    async def astream_with_tools(
+        self,
+        messages: List[Dict],
+        tools: List[Dict],
+        tool_choice: Union[str, Dict] = "auto",
+        **kwargs
+    ) -> AsyncIterator[Dict[str, Any]]:
+        """
+        异步流式调用 LLM + 工具调用（一次调用，同时返回文本和工具调用增量）
+
+        同时 yield:
+        - {"type": "text", "content": str} - 文本增量
+        - {"type": "tool_call", "chunk": StreamToolCallChunk} - 工具调用增量
+
+        流式结束后可通过 llm._adapter._last_tool_response 获取完整的 LLMToolResponse
+
+        Args:
+            messages: 消息列表
+            tools: 工具 schema 列表
+            tool_choice: 工具选择策略
+            **kwargs: 其他参数
+
+        Yields:
+            Dict: 包含 type 和 content/chunk 的字典
+
+        Example:
+            async for item in llm.astream_with_tools(messages, tools):
+                if item["type"] == "text":
+                    print(item["content"], end="", flush=True)
+                elif item["type"] == "tool_call":
+                    print(f"\\n[调用工具: {item['chunk'].name}]")
+        """
+        call_kwargs = {
+            "tool_choice": tool_choice,
+        }
+        if self.max_tokens:
+            call_kwargs["max_tokens"] = kwargs.pop("max_tokens", self.max_tokens)
+        call_kwargs.update(kwargs)
+
+        async for item in self._adapter.astream_with_tools(messages, tools, **call_kwargs):
+            yield item
 
     async def ainvoke_with_tools(
         self,

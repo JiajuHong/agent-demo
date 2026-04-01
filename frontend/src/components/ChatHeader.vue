@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import { nextTick, ref } from 'vue'
-import { Menu, Moon, PenLine, Sun } from 'lucide-vue-next'
+import { Menu, Moon, PenLine, Sun, FileText } from 'lucide-vue-next'
 
 const props = defineProps<{
   title: string
   isDark: boolean
   isMobile: boolean
+  softwareFactory?: boolean
 }>()
 
 const emit = defineEmits<{
   'toggle-theme': []
   'toggle-sidebar': []
   'rename-title': [title: string]
+  'toggle-software-factory': []
 }>()
 
 const editingTitle = ref(false)
@@ -97,7 +99,19 @@ function cancelRename() {
         </div>
       </div>
 
-      <div class="flex min-w-[40px] justify-end">
+      <div class="flex min-w-[40px] items-center gap-1 justify-end">
+        <button
+          class="inline-flex h-10 w-10 items-center justify-center rounded-full transition-all"
+          :class="[
+            props.softwareFactory
+              ? (props.isDark ? 'bg-[#4D6BFE]/20 text-[#6E86FF]' : 'bg-[#EAF0FF] text-[#4D6BFE]')
+              : (props.isDark ? 'text-gray-100 hover:bg-white/10' : 'text-gray-700 hover:bg-gray-100')
+          ]"
+          title="软件工厂"
+          @click="emit('toggle-software-factory')"
+        >
+          <FileText class="h-5 w-5" />
+        </button>
         <button
           class="inline-flex h-10 w-10 items-center justify-center rounded-full transition-all"
           :class="props.isDark ? 'text-gray-100 hover:bg-white/10' : 'text-gray-700 hover:bg-gray-100'"

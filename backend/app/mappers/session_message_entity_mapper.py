@@ -48,17 +48,6 @@ class SessionMessageEntityMapper:
                 metadata.get("agent"),
                 "simple-test-agent" if role == "assistant" else None,
             )
-            tool_name = SessionMessageEntityMapper._pick_first_non_empty(
-                item.get("tool_name"),
-                metadata.get("tool_name"),
-                metadata.get("tool"),
-                metadata.get("name"),
-            )
-            tool_call_id = SessionMessageEntityMapper._pick_first_non_empty(
-                item.get("tool_call_id"),
-                metadata.get("tool_call_id"),
-                metadata.get("call_id"),
-            )
             content_type = SessionMessageEntityMapper._pick_first_non_empty(
                 item.get("content_type"),
                 metadata.get("content_type"),
@@ -75,8 +64,6 @@ class SessionMessageEntityMapper:
                     "content",
                     "content_type",
                     "agent_name",
-                    "tool_name",
-                    "tool_call_id",
                     "created_at",
                     "timestamp",
                 }
@@ -111,8 +98,6 @@ class SessionMessageEntityMapper:
                     agent_name=str(agent_name) if agent_name is not None else None,
                     content=item.get("content", ""),
                     content_type=str(content_type),
-                    tool_name=str(tool_name) if tool_name is not None else None,
-                    tool_call_id=str(tool_call_id) if tool_call_id is not None else None,
                     metadata_json=json.dumps(message_metadata, ensure_ascii=False) if message_metadata else None,
                     created_at=created_at,
                     timestamp=timestamp,
@@ -134,10 +119,6 @@ class SessionMessageEntityMapper:
                 item["agent_name"] = row.agent_name
             if row.content_type:
                 item["content_type"] = row.content_type
-            if row.tool_name:
-                item["tool_name"] = row.tool_name
-            if row.tool_call_id:
-                item["tool_call_id"] = row.tool_call_id
             if row.created_at is not None:
                 item["created_at"] = SessionEntityMapper.format_datetime(row.created_at)
             # timestamp 字段直接存储框架所需的消息时间，优先用表中值，回退到 created_at。

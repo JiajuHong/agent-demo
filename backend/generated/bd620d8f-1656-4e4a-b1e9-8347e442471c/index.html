@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简单待办事项</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="app-header">
+            <h1><i class="fas fa-tasks"></i> 简单待办事项</h1>
+            <p class="subtitle">记录您的任务，保持专注</p>
+        </header>
+
+        <main class="app-main">
+            <!-- 添加任务区域 -->
+            <section class="add-task-section">
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        id="taskInput" 
+                        placeholder="输入新的待办事项..." 
+                        maxlength="100"
+                        aria-label="待办事项输入框"
+                    >
+                    <button id="addTaskBtn" class="btn btn-primary" aria-label="添加任务">
+                        <i class="fas fa-plus"></i> 添加
+                    </button>
+                </div>
+                <div id="inputError" class="error-message" aria-live="polite"></div>
+            </section>
+
+            <!-- 任务统计 -->
+            <section class="stats-section">
+                <div class="stats-container">
+                    <div class="stat-item">
+                        <span class="stat-label">总任务数</span>
+                        <span id="totalTasks" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">已完成</span>
+                        <span id="completedTasks" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">未完成</span>
+                        <span id="pendingTasks" class="stat-value">0</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 任务列表 -->
+            <section class="tasks-section">
+                <h2>任务列表</h2>
+                <div id="taskList" class="task-list" aria-live="polite">
+                    <!-- 任务项将通过JavaScript动态生成 -->
+                    <div class="empty-state" id="emptyState">
+                        <i class="fas fa-clipboard-list"></i>
+                        <p>还没有待办事项</p>
+                        <p class="empty-hint">添加您的第一个任务开始吧！</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 操作按钮 -->
+            <section class="actions-section">
+                <div class="actions-container">
+                    <button id="clearCompletedBtn" class="btn btn-secondary" aria-label="清除已完成任务">
+                        <i class="fas fa-trash-alt"></i> 清除已完成
+                    </button>
+                    <button id="clearAllBtn" class="btn btn-danger" aria-label="清除所有任务">
+                        <i class="fas fa-broom"></i> 清除所有
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <footer class="app-footer">
+            <p>数据存储在您的浏览器本地，刷新页面不会丢失</p>
+            <p class="footer-note">使用 HTML、CSS、JavaScript 构建</p>
+        </footer>
+    </div>
+
+    <!-- 确认对话框 -->
+    <div id="confirmDialog" class="dialog-overlay" style="display: none;">
+        <div class="dialog">
+            <h3 id="dialogTitle">确认操作</h3>
+            <p id="dialogMessage">您确定要执行此操作吗？</p>
+            <div class="dialog-actions">
+                <button id="dialogCancelBtn" class="btn btn-secondary">取消</button>
+                <button id="dialogConfirmBtn" class="btn btn-danger">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -698,3 +698,14 @@ body {
 /* ─── Fade transition ───────────────────────────────────────── */
 .fade-enter-active,.fade-leave-active { transition: opacity .2s; }
 .fade-enter-from,.fade-leave-to { opacity: 0; }
+
+/* ─── Document Panel (软件工厂) ─────────────────────────────── */
+.document-panel {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--layer-main);
+  border-left: 1px solid var(--border);
+  min-width: 300px;
+}

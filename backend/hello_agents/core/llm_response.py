@@ -13,6 +13,19 @@ class ToolCall:
 
 
 @dataclass
+class StreamToolCallChunk:
+    """流式工具调用过程中的单个 chunk
+
+    用于 astream_with_tools 方法，表示工具调用的增量数据。
+    包含 index（工具索引）、id、name、arguments（增量）
+    """
+    index: int
+    id: Optional[str] = None
+    name: Optional[str] = None
+    arguments: Optional[str] = None
+
+
+@dataclass
 class LLMToolResponse:
     """统一的工具调用响应对象"""
     content: Optional[str]

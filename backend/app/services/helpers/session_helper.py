@@ -6,7 +6,7 @@ from typing import Optional
 
 from app.models import SessionState
 
-from app.prompts import CODEGEN_PROMPT
+from app.prompts import SOFTWARE_FACTORY_PROMPT
 
 
 def local_now() -> str:
@@ -29,7 +29,7 @@ def build_session_metadata(
         "title": (title or "新对话").strip() or "新对话",
         "title_source": "user" if (title and title.strip()) else "default",
         "user_id": user_id,
-        "system_prompt": system_prompt or CODEGEN_PROMPT,
+        "system_prompt": system_prompt or SOFTWARE_FACTORY_PROMPT,
         "created_at": created_at or now,
         "updated_at": now,
         "total_tokens": 0,
@@ -55,7 +55,7 @@ def to_session_state(doc: dict) -> SessionState:
         session_id=session_id,
         user_id=metadata.get("user_id"),
         title=metadata.get("title") or "新对话",
-        system_prompt=metadata.get("system_prompt", CODEGEN_PROMPT),
+        system_prompt=metadata.get("system_prompt", SOFTWARE_FACTORY_PROMPT),
         created_at=doc.get("created_at") or metadata.get("created_at") or local_now(),
         updated_at=doc.get("saved_at") or metadata.get("updated_at") or doc.get("created_at") or local_now(),
         history_count=history_count,

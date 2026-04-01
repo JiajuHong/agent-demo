@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>极简TodoList</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📝 极简TodoList</h1>
+            <p class="subtitle">最简单的任务管理工具</p>
+        </header>
+
+        <main>
+            <div class="todo-app">
+                <!-- 添加任务区域 -->
+                <div class="add-task-section">
+                    <input type="text" 
+                           id="taskInput" 
+                           placeholder="输入新任务..." 
+                           maxlength="100">
+                    <button id="addTaskBtn">添加任务</button>
+                </div>
+
+                <!-- 任务统计 -->
+                <div class="stats">
+                    <span>总任务: <span id="totalCount">0</span></span>
+                    <span>待完成: <span id="pendingCount">0</span></span>
+                    <span>已完成: <span id="completedCount">0</span></span>
+                </div>
+
+                <!-- 任务列表 -->
+                <div class="task-list" id="taskList">
+                    <!-- 任务项将通过JavaScript动态生成 -->
+                    <div class="empty-state" id="emptyState">
+                        <p>🎉 还没有任务，添加第一个任务吧！</p>
+                    </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="action-buttons">
+                    <button id="clearCompletedBtn" class="secondary">清除已完成</button>
+                    <button id="clearAllBtn" class="danger">清除所有</button>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>使用localStorage存储数据，刷新页面不会丢失</p>
+        </footer>
+    </div>
+
+    <script src="js/todo.js"></script>
+</body>
+</html>

@@ -6,7 +6,6 @@ const props = defineProps<{
   isStreaming: boolean
   webSearch:   boolean
   thinking:    boolean
-  softwareFactory: boolean
   isDark:      boolean
 }>()
 
@@ -15,7 +14,6 @@ const emit = defineEmits<{
   'stop':              []
   'toggle-web-search': []
   'toggle-thinking':   []
-  'toggle-software-factory': []
 }>()
 
 const input      = ref('')
@@ -62,13 +60,7 @@ const thinkingBtnClass = computed(() =>
   }`,
 )
 
-const softwareFactoryBtnClass = computed(() =>
-  `${featureBtnBaseClass} ${
-    props.softwareFactory
-      ? (props.isDark ? selectedFeatureClassDark : selectedFeatureClass)
-      : (props.isDark ? 'border-white/10 bg-[#2E2F34] text-gray-300 hover:bg-[#35363C]' : unselectedFeatureClass.value)
-  }`,
-)
+
 
 const sendBtnClass = computed(() => {
   if (props.isStreaming) {
@@ -148,9 +140,7 @@ function toggleThinking() {
   emit('toggle-thinking')
 }
 
-function toggleSoftwareFactory() {
-  emit('toggle-software-factory')
-}
+
 </script>
 
 <template>
@@ -190,16 +180,6 @@ function toggleSoftwareFactory() {
             <Brain class="h-3.5 w-3.5" />
             <span>深度思考</span>
           </button> -->
-
-          <button
-            type="button"
-            :class="softwareFactoryBtnClass"
-            title="软件工厂"
-            @click="toggleSoftwareFactory"
-          >
-            <Settings class="h-3.5 w-3.5" />
-            <span>软件工厂</span>
-          </button>
 
           <!-- <button
             type="button"

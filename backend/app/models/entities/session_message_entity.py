@@ -31,8 +31,6 @@ class SessionMessageEntity(Base):
     agent_name: Mapped[str | None] = mapped_column(String(128), nullable=True)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     content_type: Mapped[str] = mapped_column(String(32), nullable=False, default="text")
-    tool_name: Mapped[str | None] = mapped_column(String(128), nullable=True)
-    tool_call_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
     metadata_json: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now())
     timestamp: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)

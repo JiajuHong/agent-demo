@@ -1,31 +1,19 @@
-export interface ToolCall {
-  type: 'thinking' | 'tool_call'
-  content?: string
-  tool_name?: string
-  arguments?: Record<string, unknown>
-  result?: string
-}
-
-export interface Step {
-  step: number
-  model_output: string
-  tool_calls: ToolCall[]
-}
-
 export interface Message {
   id: string
-  role: 'user' | 'assistant'
+  role: 'user' | 'assistant' | 'tool'
   content: string
   time: string
   files?: UploadedFile[]
-  steps?: Step[]
-  final_answer?: string
+  metadata?: {
+    tool_name?: string
+    arguments?: string
+  }
 }
 
 export interface UploadedFile {
   name: string
   type: string
-  content: string   // extracted text content
+  content: string
 }
 
 export interface Session {

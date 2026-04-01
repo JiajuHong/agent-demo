@@ -5,13 +5,14 @@ from __future__ import annotations
 from threading import RLock
 from typing import Any, AsyncGenerator, Optional
 
+from app.agents import CodeGenAgent
 from hello_agents import Config, ReActAgent
 from hello_agents.core import Agent
 from hello_agents.core.llm import HelloAgentsLLM
 from hello_agents.core.streaming import StreamEvent
 from hello_agents.tools.registry import ToolRegistry
 
-from app.prompts import CODEGEN_PROMPT
+from app.prompts import SOFTWARE_FACTORY_PROMPT
 from app.repositories import SessionRepository
 from app.services.agent_service import AgentService
 from app.services.helpers import session_helper
@@ -50,12 +51,12 @@ class AgentServiceImpl(AgentService):
         registry.register_tool(WriteTool(project_root=project_root))
         registry.register_tool(EditTool(project_root=project_root))
 
-        return ReActAgent(
+        return CodeGenAgent(
             name="codegen-agent",
             llm=self._llm,
             config=config,
             tool_registry=registry,
-            system_prompt=system_prompt or CODEGEN_PROMPT,
+            system_prompt=system_prompt or SOFTWARE_FACTORY_PROMPT,
             max_steps=100
         )
 
@@ -70,7 +71,7 @@ class AgentServiceImpl(AgentService):
         if session_id in self._agents:
             return self._agents[session_id]
 
-        system_prompt = metadata.get("system_prompt", CODEGEN_PROMPT)
+        system_prompt = metadata.get("system_prompt", SOFTWARE_FACTORY_PROMPT)
         agent = self._create_agent(system_prompt, session_id)
 
         session_path = self._repository.session_path(session_id)

@@ -7,7 +7,7 @@ import Sidebar         from './components/Sidebar.vue'
 import ChatHeader      from './components/ChatHeader.vue'
 import MessageBubble   from './components/MessageBubble.vue'
 import ChatInput       from './components/InputArea.vue'
-import HITLQuestion    from './components/HITLQuestion.vue'
+import DocumentPanel   from './components/DocumentPanel.vue'
 
 
 // ─── Theme ────────────────────────────────────────────────────
@@ -145,6 +145,31 @@ function toggleSoftwareFactory() {
 const chatTitle   = computed(() => currentSession.value?.title ?? '新对话')
 const hasMessages = computed(() => messages.value.length > 0)
 const lastMsgId   = computed(() => messages.value[messages.value.length - 1]?.id)
+
+const softwareFactoryWidth = ref(600)
+const isDragging = ref(false)
+
+function startDrag(event: MouseEvent) {
+  isDragging.value = true
+  document.addEventListener('mousemove', onDrag)
+  document.addEventListener('mouseup', stopDrag)
+}
+
+function onDrag(event: MouseEvent) {
+  if (!isDragging.value) return
+  const container = document.querySelector('.app-shell') as HTMLElement
+  if (!container) return
+  const rect = container.getBoundingClientRect()
+  // 计算软件工厂面板的宽度（从右侧边缘到拖拽位置）
+  const newWidth = rect.right - event.clientX
+  softwareFactoryWidth.value = Math.min(Math.max(newWidth, 400), 900)
+}
+
+function stopDrag() {
+  isDragging.value = false
+  document.removeEventListener('mousemove', onDrag)
+  document.removeEventListener('mouseup', stopDrag)
+}
 </script>
 
 <template>
@@ -164,16 +189,18 @@ const lastMsgId   = computed(() => messages.value[messages.value.length - 1]?.id
     />
 
     <!-- Main content -->
-    <div class="chat-main">
+    <div class="chat-main" :class="{ 'with-panel': softwareFactory }">
 
       <!-- Top header bar -->
       <ChatHeader
         :title="chatTitle"
         :is-dark="isDark"
         :is-mobile="isMobile"
+        :software-factory="softwareFactory"
         @toggle-theme="toggleTheme"
         @toggle-sidebar="toggleSidebar"
         @rename-title="onRenameTitle"
+        @toggle-software-factory="toggleSoftwareFactory"
       />
 
       <!-- Message feed -->
@@ -183,12 +210,6 @@ const lastMsgId   = computed(() => messages.value[messages.value.length - 1]?.id
             :key="msg.id"
             :message="msg"
             :is-streaming="isStreaming && msg.id === lastMsgId && msg.role === 'assistant'"
-          />
-          <!-- HITL Question Component -->
-          <HITLQuestion
-            v-if="hitlSession"
-            :hitl-session="hitlSession"
-            @submit="(answers) => submitHitlAnswer(hitlSession!, answers)"
           />
           <div style="height:8px" />
         </div>
@@ -208,13 +229,11 @@ const lastMsgId   = computed(() => messages.value[messages.value.length - 1]?.id
                 :is-streaming="isStreaming"
                 :web-search="webSearch"
                 :thinking="thinking"
-                :software-factory="softwareFactory"
                 :is-dark="isDark"
                 @send="onSend"
                 @stop="stopStreaming"
                 @toggle-web-search="toggleWebSearch"
                 @toggle-thinking="toggleThinking"
-                @toggle-software-factory="toggleSoftwareFactory"
               />
             </div>
           </div>
@@ -226,16 +245,32 @@ const lastMsgId   = computed(() => messages.value[messages.value.length - 1]?.id
           :is-streaming="isStreaming"
           :web-search="webSearch"
           :thinking="thinking"
-          :software-factory="softwareFactory"
           :is-dark="isDark"
           @send="onSend"
           @stop="stopStreaming"
           @toggle-web-search="toggleWebSearch"
           @toggle-thinking="toggleThinking"
-          @toggle-software-factory="toggleSoftwareFactory"
         />
 
     </div>
+
+    <!-- Drag Handle -->
+    <div
+      v-if="softwareFactory"
+      class="drag-handle"
+      :class="{ dragging: isDragging }"
+      @mousedown="startDrag"
+    >
+      <div class="drag-line"></div>
+    </div>
+
+    <!-- Document Panel (软件工厂模式) -->
+    <DocumentPanel
+      v-if="softwareFactory"
+      :session-id="currentSessionId"
+      :is-dark="isDark"
+      :style="{ flex: `0 0 ${softwareFactoryWidth}px` }"
+    />
 
   </div>
 </template>
@@ -255,5 +290,63 @@ const lastMsgId   = computed(() => messages.value[messages.value.length - 1]?.id
 
 .hero-fade-in {
   animation: hero-fade-in .7s ease both;
+}
+
+/* 分栏布局 */
+.app-shell {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.chat-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.document-panel-wrapper {
+  flex: 1;
+  display: flex;
+  min-width: 400px;
+}
+
+/* Drag Handle */
+.drag-handle {
+  width: 6px;
+  background: #e5e7eb;
+  cursor: col-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.dark .drag-handle {
+  background: #374151;
+}
+
+.drag-handle:hover,
+.drag-handle.dragging {
+  background: #4f46e5;
+}
+
+.drag-line {
+  width: 2px;
+  height: 40px;
+  background: #d1d5db;
+  border-radius: 1px;
+}
+
+.dark .drag-line {
+  background: #4b5563;
+}
+
+.drag-handle:hover .drag-line,
+.drag-handle.dragging .drag-line {
+  background: white;
 }
 </style>

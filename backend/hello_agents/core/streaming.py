@@ -14,6 +14,7 @@ class StreamEventType(Enum):
     STEP_START = "step_start"
     STEP_FINISH = "step_finish"
     TOOL_CALL_START = "tool_call_start"
+    TOOL_CALL_CHUNK = "tool_call_chunk"  # 工具调用增量（流式获取参数）
     TOOL_CALL_FINISH = "tool_call_finish"
     LLM_CHUNK = "llm_chunk"  # LLM 流式输出的文本块
     THINKING = "thinking"  # Agent 思考过程

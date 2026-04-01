@@ -6,7 +6,7 @@ import json
 from abc import ABC, abstractmethod
 from typing import Optional, Iterator, List, Dict, Any, Union, AsyncIterator
 
-from .llm_response import LLMResponse, StreamStats, LLMToolResponse, ToolCall
+from .llm_response import LLMResponse, StreamStats, LLMToolResponse, ToolCall, StreamToolCallChunk
 from .exceptions import HelloAgentsException
 
 
@@ -271,6 +271,131 @@ class OpenAIAdapter(BaseLLMAdapter):
 
         except Exception as e:
             raise HelloAgentsException(f"OpenAI API异步流式调用失败: {str(e)}")
+
+    async def astream_with_tools(
+        self,
+        messages: List[Dict],
+        tools: List[Dict],
+        tool_choice: Union[str, Dict] = "auto",
+        **kwargs
+    ) -> AsyncIterator[Dict[str, Any]]:
+        """流式调用 + 工具调用（一次调用，同时返回文本和工具调用）
+
+        同时 yield:
+        - {"type": "text", "content": str} - 文本增量
+        - {"type": "tool_call", "chunk": StreamToolCallChunk} - 工具调用增量
+
+        流式结束后可通过 self._last_tool_response 获取完整的 LLMToolResponse
+
+        Args:
+            messages: 消息列表
+            tools: 工具 schema 列表
+            tool_choice: 工具选择策略
+            **kwargs: 其他参数
+
+        Yields:
+            Dict: 包含 type 和 content/chunk 的字典
+        """
+        if not self._async_client:
+            self._async_client = self.create_async_client()
+
+        start_time = time.time()
+
+        call_kwargs = {
+            "model": self.model,
+            "messages": messages,
+            "tools": tools,
+            "tool_choice": tool_choice,
+            "stream": True,
+            **kwargs
+        }
+
+        collected_content = []
+        collected_tool_calls: List[Dict[str, Any]] = []
+        reasoning_content = None
+        usage = {}
+
+        try:
+            response = await self._async_client.chat.completions.create(**call_kwargs)
+
+            async for chunk in response:
+                if chunk.choices and len(chunk.choices) > 0:
+                    delta = chunk.choices[0].delta
+
+                    if delta.content:
+                        collected_content.append(delta.content)
+                        yield {"type": "text", "content": delta.content}
+
+                    if delta.tool_calls:
+                        for tc_index, tc_delta in enumerate(delta.tool_calls):
+                            if len(collected_tool_calls) <= tc_index:
+                                collected_tool_calls.append({
+                                    "id": None,
+                                    "name": None,
+                                    "arguments": ""
+                                })
+
+                            if tc_delta.id:
+                                collected_tool_calls[tc_index]["id"] = tc_delta.id
+                            if tc_delta.function and tc_delta.function.name:
+                                collected_tool_calls[tc_index]["name"] = tc_delta.function.name
+                            if tc_delta.function and tc_delta.function.arguments:
+                                collected_tool_calls[tc_index]["arguments"] += tc_delta.function.arguments
+
+                            yield {
+                                "type": "tool_call",
+                                "chunk": StreamToolCallChunk(
+                                    index=tc_index,
+                                    id=tc_delta.id,
+                                    name=tc_delta.function.name if tc_delta.function else None,
+                                    arguments=tc_delta.function.arguments if tc_delta.function else None
+                                )
+                            }
+
+                    if self._is_thinking_model(self.model):
+                        if hasattr(delta, 'reasoning_content') and delta.reasoning_content:
+                            if reasoning_content is None:
+                                reasoning_content = ""
+                            reasoning_content += delta.reasoning_content
+
+                if hasattr(chunk, 'usage') and chunk.usage:
+                    usage = {
+                        "prompt_tokens": chunk.usage.prompt_tokens,
+                        "completion_tokens": chunk.usage.completion_tokens,
+                        "total_tokens": chunk.usage.total_tokens,
+                    }
+
+            latency_ms = int((time.time() - start_time) * 1000)
+
+            tool_calls = [
+                ToolCall(
+                    id=tc["id"] or f"call_{tc_index}",
+                    name=tc["name"] or "unknown",
+                    arguments=tc["arguments"]
+                )
+                for tc_index, tc in enumerate(collected_tool_calls)
+                if tc["name"]
+            ]
+
+            final_content = "".join(collected_content)
+
+            self._last_tool_response = LLMToolResponse(
+                content=final_content,
+                tool_calls=tool_calls,
+                model=self.model,
+                usage=usage,
+                latency_ms=latency_ms
+            )
+
+            self.last_stats = StreamStats(
+                model=self.model,
+                usage=usage,
+                latency_ms=latency_ms,
+                reasoning_content=reasoning_content
+            )
+
+        except Exception as e:
+            raise HelloAgentsException(f"OpenAI API流式工具调用失败: {str(e)}")
 
     def invoke_with_tools(self, messages: List[Dict], tools: List[Dict],
                          tool_choice: Union[str, Dict] = "auto", **kwargs) -> LLMToolResponse:

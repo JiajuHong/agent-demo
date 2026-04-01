@@ -1,0 +1,446 @@
+# 软件设计文档
+
+## 1. 系统架构
+
+### 1.1 整体架构
+
+```
+┌─────────────────────────────────────────┐
+│           TodoList 应用                 │
+├─────────────────────────────────────────┤
+│                                         │
+│  ┌─────────┐  ┌─────────┐  ┌─────────┐ │
+│  │  视图层 │  │ 业务逻辑│  │ 数据层  │ │
+│  │ (HTML)  │  │  (JS)   │  │ (存储)  │ │
+│  └─────────┘  └─────────┘  └─────────┘ │
+│      │            │            │       │
+│      └────────────┼────────────┘       │
+│                   │                    │
+│            ┌──────┴──────┐             │
+│            │  事件驱动   │             │
+│            │  控制器     │             │
+│            └─────────────┘             │
+└─────────────────────────────────────────┘
+```
+
+技术栈：
+- 前端：HTML5 + CSS3 + JavaScript (ES6+)
+- 存储：浏览器 localStorage
+- 样式：原生CSS + 自定义样式
+- 图标：Font Awesome 图标库
+
+### 1.2 模块划分
+
+| 模块名称 | 职责 | 依赖模块 |
+|----------|------|----------|
+| UI模块 | 负责页面布局、样式渲染、用户交互界面 | 无 |
+| 任务管理模块 | 负责任务的增删改查、状态管理 | UI模块 |
+| 存储模块 | 负责数据的持久化存储和读取 | 任务管理模块 |
+| 过滤模块 | 负责任务列表的过滤和搜索 | 任务管理模块 |
+| 统计模块 | 负责任务统计数据的计算和展示 | 任务管理模块 |
+
+### 1.3 项目目录结构
+
+```
+todo-list/
+├── index.html              # 主页面
+├── css/
+│   ├── style.css          # 主样式文件
+│   └── responsive.css     # 响应式样式
+├── js/
+│   ├── app.js             # 主应用逻辑
+│   ├── taskManager.js     # 任务管理模块
+│   ├── storage.js         # 数据存储模块
+│   ├── filter.js          # 过滤模块
+│   ├── stats.js           # 统计模块
+│   └── utils.js           # 工具函数
+├── assets/
+│   ├── icons/             # 图标资源
+│   └── images/            # 图片资源
+└── README.md              # 项目说明文档
+```
+
+## 2. API 设计
+
+### 2.1 数据模型
+
+**Task 对象结构**：
+```javascript
+{
+  id: "uuid-string",        // 唯一标识符
+  title: "任务标题",        // 任务标题
+  description: "任务描述",   // 任务描述（可选）
+  completed: false,         // 完成状态
+  priority: "medium",       // 优先级：low/medium/high
+  category: "work",         // 分类：work/personal/shopping/other
+  createdAt: "2024-01-01T00:00:00Z",  // 创建时间
+  dueDate: "2024-01-10T00:00:00Z",    // 截止日期（可选）
+  tags: ["urgent", "important"]       // 标签数组
+}
+```
+
+### 2.2 存储接口
+
+#### 存储模块接口
+
+**获取所有任务**
+```javascript
+getAllTasks() -> Array<Task>
+```
+
+**添加任务**
+```javascript
+addTask(taskData) -> Task
+参数：
+- taskData: { title, description?, priority?, category?, dueDate?, tags? }
+```
+
+**更新任务**
+```javascript
+updateTask(id, updates) -> Task
+参数：
+- id: 任务ID
+- updates: 要更新的字段对象
+```
+
+**删除任务**
+```javascript
+deleteTask(id) -> boolean
+参数：
+- id: 任务ID
+```
+
+**批量操作**
+```javascript
+deleteCompletedTasks() -> number  // 删除已完成任务，返回删除数量
+clearAllTasks() -> void           // 清空所有任务
+```
+
+### 2.3 过滤接口
+
+**过滤任务**
+```javascript
+filterTasks(filters) -> Array<Task>
+参数：
+- filters: {
+    status?: 'all' | 'active' | 'completed',
+    priority?: 'all' | 'low' | 'medium' | 'high',
+    category?: 'all' | 'work' | 'personal' | 'shopping' | 'other',
+    searchText?: string
+  }
+```
+
+**搜索任务**
+```javascript
+searchTasks(keyword) -> Array<Task>
+参数：
+- keyword: 搜索关键词
+```
+
+### 2.4 统计接口
+
+**获取统计信息**
+```javascript
+getTaskStats() -> {
+  total: number,           // 总任务数
+  completed: number,       // 已完成任务数
+  active: number,         // 未完成任务数
+  byPriority: {           // 按优先级统计
+    low: number,
+    medium: number,
+    high: number
+  },
+  byCategory: {           // 按分类统计
+    work: number,
+    personal: number,
+    shopping: number,
+    other: number
+  }
+}
+```
+
+## 3. 数据库设计
+
+### 3.1 存储方案
+
+由于是纯前端应用，使用浏览器 localStorage 作为数据存储：
+
+**存储结构**：
+```javascript
+// localStorage 键名
+const STORAGE_KEY = 'todo_list_tasks';
+
+// 数据格式
+{
+  "tasks": [
+    {
+      "id": "uuid-1",
+      "title": "完成项目报告",
+      "description": "编写项目总结报告",
+      "completed": false,
+      "priority": "high",
+      "category": "work",
+      "createdAt": "2024-01-01T10:00:00Z",
+      "dueDate": "2024-01-10T23:59:59Z",
+      "tags": ["urgent", "important"]
+    },
+    // ... 更多任务
+  ],
+  "settings": {
+    "theme": "light",      // 主题：light/dark
+    "sortBy": "createdAt", // 排序方式：createdAt/dueDate/priority
+    "sortOrder": "desc"    // 排序顺序：asc/desc
+  }
+}
+```
+
+### 3.2 数据操作流程
+
+```
+用户操作 → 业务逻辑处理 → 更新内存数据 → 持久化到 localStorage → 更新UI
+```
+
+## 4. 核心模块设计
+
+### 4.1 UI模块
+
+**职责**：负责页面布局、样式渲染和用户交互
+
+**主要组件**：
+1. **头部区域**：应用标题、主题切换按钮
+2. **任务输入区域**：任务表单、快速添加
+3. **过滤控制区域**：状态过滤、优先级过滤、分类过滤、搜索框
+4. **任务列表区域**：任务卡片列表
+5. **统计区域**：任务统计信息
+6. **底部区域**：批量操作按钮、设置按钮
+
+**关键交互**：
+- 点击任务卡片切换完成状态
+- 双击任务标题进入编辑模式
+- 拖拽任务进行重新排序
+- 右键点击任务显示操作菜单
+
+### 4.2 任务管理模块
+
+**职责**：负责任务的增删改查和状态管理
+
+**核心方法**：
+```javascript
+class TaskManager {
+  constructor() {
+    this.tasks = [];
+    this.currentFilter = 'all';
+  }
+  
+  // 添加任务
+  addTask(taskData) {}
+  
+  // 更新任务
+  updateTask(id, updates) {}
+  
+  // 删除任务
+  deleteTask(id) {}
+  
+  // 切换任务状态
+  toggleTaskStatus(id) {}
+  
+  // 获取过滤后的任务
+  getFilteredTasks() {}
+  
+  // 排序任务
+  sortTasks(sortBy, sortOrder) {}
+}
+```
+
+### 4.3 存储模块
+
+**职责**：负责数据的持久化存储和读取
+
+**核心方法**：
+```javascript
+class StorageManager {
+  // 保存任务数据
+  saveTasks(tasks) {}
+  
+  // 加载任务数据
+  loadTasks() {}
+  
+  // 保存设置
+  saveSettings(settings) {}
+  
+  // 加载设置
+  loadSettings() {}
+  
+  // 导出数据
+  exportData() {}
+  
+  // 导入数据
+  importData(data) {}
+}
+```
+
+### 4.4 过滤模块
+
+**职责**：负责任务列表的过滤和搜索
+
+**核心方法**：
+```javascript
+class FilterManager {
+  // 应用过滤条件
+  applyFilters(tasks, filters) {}
+  
+  // 搜索任务
+  searchTasks(tasks, keyword) {}
+  
+  // 组合多个过滤条件
+  combineFilters(filters) {}
+}
+```
+
+### 4.5 统计模块
+
+**职责**：负责任务统计数据的计算和展示
+
+**核心方法**：
+```javascript
+class StatsManager {
+  // 计算任务统计
+  calculateStats(tasks) {}
+  
+  // 生成统计图表数据
+  generateChartData(stats) {}
+  
+  // 更新统计显示
+  updateStatsDisplay(stats) {}
+}
+```
+
+## 5. 页面布局设计
+
+### 5.1 桌面端布局
+
+```
+┌─────────────────────────────────────────┐
+│            TodoList 应用                │
+├─────────────────────────────────────────┤
+│ 头部：标题 + 主题切换 + 设置            │
+├─────────────────────────────────────────┤
+│ 任务输入：表单 + 快速添加按钮           │
+├─────────────────────────────────────────┤
+│ 过滤控制：状态/优先级/分类/搜索         │
+├─────────────────────────────────────────┤
+│ 任务列表：                              │
+│ ┌─────────────────────────────────────┐ │
+│ │ 任务卡片 1                          │ │
+│ │ 任务卡片 2                          │ │
+│ │ 任务卡片 3                          │ │
+│ └─────────────────────────────────────┘ │
+├─────────────────────────────────────────┤
+│ 统计区域：图表 + 数字统计               │
+├─────────────────────────────────────────┤
+│ 底部：批量操作 + 数据导入导出           │
+└─────────────────────────────────────────┘
+```
+
+### 5.2 移动端布局
+
+采用单列布局，各区域垂直排列，过滤控制区域可折叠。
+
+## 6. 样式设计规范
+
+### 6.1 颜色方案
+
+**浅色主题**：
+- 主色调：`#4a6fa5` (蓝色)
+- 背景色：`#f8f9fa` (浅灰)
+- 文字色：`#333333` (深灰)
+- 完成色：`#28a745` (绿色)
+- 高优先级：`#dc3545` (红色)
+- 中优先级：`#ffc107` (黄色)
+- 低优先级：`#17a2b8` (青色)
+
+**深色主题**：
+- 主色调：`#6c8cc4` (浅蓝)
+- 背景色：`#212529` (深灰)
+- 文字色：`#f8f9fa` (浅灰)
+
+### 6.2 字体规范
+
+- 主字体：`'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif`
+- 代码字体：`'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Courier New', monospace`
+- 字体大小：基础 `16px`，标题 `24px`，小字 `14px`
+
+### 6.3 间距规范
+
+- 基础间距：`8px`
+- 组件间距：`16px`
+- 区域间距：`24px`
+- 卡片内边距：`16px`
+
+## 7. 性能优化
+
+### 7.1 渲染优化
+
+1. **虚拟滚动**：任务列表超过50条时启用虚拟滚动
+2. **防抖搜索**：搜索输入框添加防抖处理
+3. **批量更新**：多个操作合并后统一更新UI
+4. **缓存计算结果**：统计信息缓存，避免重复计算
+
+### 7.2 存储优化
+
+1. **数据压缩**：存储前对数据进行简单压缩
+2. **增量更新**：只更新变化的数据
+3. **存储限制**：设置最大存储条数（默认500条）
+
+### 7.3 加载优化
+
+1. **懒加载**：图标和图片懒加载
+2. **代码分割**：按需加载模块
+3. **预加载**：常用功能预加载
+
+## 8. 浏览器兼容性
+
+- Chrome 60+
+- Firefox 55+
+- Safari 11+
+- Edge 79+
+- 移动端浏览器最新版本
+
+## 9. 错误处理
+
+### 9.1 存储错误
+
+- localStorage 空间不足
+- 数据格式损坏
+- 读写权限问题
+
+### 9.2 用户输入错误
+
+- 空任务标题
+- 无效日期格式
+- 超长文本输入
+
+### 9.3 网络错误（未来扩展）
+
+- API 请求失败
+- 数据同步冲突
+
+## 10. 扩展性考虑
+
+### 10.1 未来功能扩展
+
+1. **多语言支持**：国际化
+2. **云端同步**：多设备数据同步
+3. **提醒功能**：桌面通知和邮件提醒
+4. **团队协作**：共享任务列表
+5. **附件支持**：上传文件到任务
+
+### 10.2 架构扩展
+
+1. **插件系统**：支持功能插件
+2. **主题系统**：自定义主题
+3. **导出格式**：支持多种导出格式（JSON、CSV、PDF）
+
+---
+
+**设计完成**：以上是基于需求规格说明书设计的TodoList应用架构。下一步将进入代码生成阶段。

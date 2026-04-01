@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import type { Message, Session, Step } from '../types'
+import type { Message, Session } from '../types'
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL as string) || 'http://127.0.0.1:8000'
 
@@ -11,7 +11,6 @@ function getTime(): string {
   return new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
 }
 
-// ─── 模拟回复（后端不可用时回退）────────────────────────────────
 const MOCK_RESPONSES = [
   `# 欢迎使用 AI 助手\n\n我是一个功能强大的 AI 助手，可以帮助你：\n\n- **回答问题**：各类知识查询\n- **代码开发**：编写、调试代码\n- **写作辅助**：文章、邮件、报告\n- **数据分析**：理解和解读数据\n\n尽管提问吧！`,
   `这是一个很好的问题。我来详细解答：\n\n1. 首先，我们需要理解基本概念\n2. 然后逐步分析问题\n3. 最后给出最优解决方案\n\n**结论**：通过系统化思考，可以找到清晰的答案。`,
@@ -34,7 +33,6 @@ async function simulateStream(
         resolve()
         return
       }
-      // 逐字输出，偶尔多输出几个字符模拟真实流速
       const batch = Math.floor(Math.random() * 3) + 1
       append(chunks.slice(i, i + batch).join(''))
       i += batch
@@ -51,7 +49,6 @@ export function useChat() {
   const webSearch = ref(false)
   const thinking = ref(false)
   const backendOnline = ref(false)
-  // HITL 会话状态
   const hitlSession = ref<{
     session_id: string
     questions: Array<{
@@ -62,7 +59,6 @@ export function useChat() {
       required?: boolean
     }>
   } | null>(null)
-  // 尚未发送任何消息的「草稿」会话，不显示在侧边栏
   const draftSession = ref<Session | null>(null)
 
   const abortCtrlBySession = new Map<string, AbortController>()
@@ -166,7 +162,6 @@ export function useChat() {
     return !!streamingBySession.value[sessionId]
   }
 
-  // ─── 后端请求 ───────────────────────────────────────────────
   async function fetchJSON<T>(url: string, init?: RequestInit): Promise<T> {
     const res = await fetch(url, init)
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
@@ -195,7 +190,6 @@ export function useChat() {
 
   async function createDraftSession(): Promise<void> {
     const local: Session = { id: genId(), title: '新对话', createdAt: Date.now() }
-    // 不加入 sessions（不在侧边栏显示），仅作为草稿
     draftSession.value = local
     currentSessionId.value = local.id
     if (!messagesBySession.value[local.id]) {
@@ -280,21 +274,24 @@ export function useChat() {
 
     if (backendOnline.value) {
       try {
-        const data = await fetchJSON<{ messages?: Array<{ role: string; content: string; metadata?: { steps?: Step[] } }>; history?: Array<{ role: string; content: string; metadata?: { steps?: Step[] } }> }>(
+        const data = await fetchJSON<{
+          history: Array<{ role: string; content: string; tool_name?: string; metadata?: { tool_name?: string; arguments?: Record<string, unknown> } }>
+        }>(
           `${API_BASE}/api/v1/sessions/${id}/history`,
         )
-        const rawMessages = data.messages ?? data.history ?? []
-        setSessionMessages(id, rawMessages.map(m => {
-          const steps = m.metadata?.steps
-          return {
-            id: genId(),
-            role: m.role as Message['role'],
-            content: m.content,
-            time: getTime(),
-            steps: steps,
-            final_answer: steps && m.content ? m.content : undefined,
-          }
-        }))
+        const rawMessages = data.history
+        setSessionMessages(id, rawMessages.map(m => ({
+          id: genId(),
+          role: m.role as Message['role'],
+          content: m.content,
+          time: getTime(),
+          metadata: m.metadata ? {
+            tool_name: m.metadata.tool_name,
+            arguments: typeof m.metadata.arguments === 'string'
+              ? m.metadata.arguments
+              : JSON.stringify(m.metadata.arguments),
+          } : undefined,
+        })))
       } catch { /* ignore */ }
     }
 
@@ -315,7 +312,6 @@ export function useChat() {
     if (!sessionId) return
     if (isSessionStreaming(sessionId)) return
 
-    // 首次发消息时才真正创建后端会话，并将草稿提升到侧边栏
     if (draftSession.value?.id === sessionId) {
       if (backendOnline.value) {
         try {
@@ -347,14 +343,12 @@ export function useChat() {
       setSessionMessages(sessionId, [])
     }
 
-    // 上传文件内容拼入消息
     let combinedContent = content.trim()
     if (files && files.length > 0) {
       const names = files.map(f => f.name).join('、')
       combinedContent = `[已附加文件：${names}]\n\n${combinedContent}`
     }
 
-    // 用户消息
     const userMsg: Message = {
       id: genId(),
       role: 'user',
@@ -363,88 +357,36 @@ export function useChat() {
     }
     pushSessionMessage(sessionId, userMsg)
 
-    // 占位助手消息
-    const assistantMsg: Message = { id: genId(), role: 'assistant', content: '', time: getTime(), steps: [] }
+    const assistantMsg: Message = { id: genId(), role: 'assistant', content: '', time: getTime() }
     pushSessionMessage(sessionId, assistantMsg)
     const assistantMsgId = assistantMsg.id
 
-    let currentStepIndex = ref(-1)
+    const toolCallIdToMsgId = new Map<string, string>()
+    const toolCallIdToToolName = new Map<string, string>()
 
-    const appendAssistantContent = (text: string) => {
+    let currentStep = 0
+    let currentAssistantMsgId = assistantMsgId
+    const finishMsgIdRef = { current: null as string | null }
+
+    const appendAssistantContent = (text: string, step: number, isFinish = false) => {
       if (!text) return
-      updateSessionMessage(sessionId, assistantMsgId, (msg) => {
-        if (!msg.steps || msg.steps.length === 0) {
-          return msg
+      if (step !== currentStep) {
+        currentStep = step
+        const newMsg: Message = { id: genId(), role: 'assistant', content: text, time: getTime() }
+        pushSessionMessage(sessionId, newMsg)
+        currentAssistantMsgId = newMsg.id
+        if (isFinish) {
+          finishMsgIdRef.current = newMsg.id
         }
-        const steps = [...msg.steps]
-        const currentStep = { ...steps[steps.length - 1] }
-        currentStep.model_output = (currentStep.model_output || '') + text
-        steps[steps.length - 1] = currentStep
-        return { ...msg, steps }
-      })
-    }
-
-    const setAssistantContent = (text: string) => {
-      updateSessionMessage(sessionId, assistantMsgId, (msg) => {
-        if (!msg.steps || msg.steps.length === 0) {
-          return { ...msg, content: text }
+      } else {
+        updateSessionMessage(sessionId, currentAssistantMsgId, (msg) => ({
+          ...msg,
+          content: msg.content + text,
+        }))
+        if (isFinish) {
+          finishMsgIdRef.current = currentAssistantMsgId
         }
-        const steps = [...msg.steps]
-        const currentStep = { ...steps[steps.length - 1] }
-        currentStep.model_output = text
-        steps[steps.length - 1] = currentStep
-        return { ...msg, steps }
-      })
-    }
-
-    const getAssistantContent = () => {
-      const target = getSessionMessages(sessionId).find(m => m.id === assistantMsgId)
-      if (!target) return ''
-      if (target.steps && target.steps.length > 0) {
-        return target.steps[target.steps.length - 1].model_output || ''
       }
-      return target.content || ''
-    }
-
-    const startNewStep = (stepNum: number) => {
-      updateSessionMessage(sessionId, assistantMsgId, (msg) => {
-        const steps = [...(msg.steps || []), { step: stepNum, model_output: '', tool_calls: [] }]
-        return { ...msg, steps }
-      })
-      currentStepIndex.value = stepNum
-    }
-
-    const appendToolCallToCurrentStep = (toolCall: { type: 'thinking' | 'tool_call'; content?: string; tool_name?: string; arguments?: Record<string, unknown>; result?: string }) => {
-      updateSessionMessage(sessionId, assistantMsgId, (msg) => {
-        if (!msg.steps || msg.steps.length === 0) {
-          return msg
-        }
-        const steps = [...msg.steps]
-        const currentStep = { ...steps[steps.length - 1] }
-        const toolCalls = [...(currentStep.tool_calls || [])]
-
-        if (toolCall.type === 'thinking') {
-          let merged = false
-          for (let i = toolCalls.length - 1; i >= 0; i--) {
-            if (toolCalls[i].type === 'thinking') {
-              const lastThinking = { ...toolCalls[i] }
-              lastThinking.content = (lastThinking.content || '') + (toolCall.content || '')
-              toolCalls[i] = lastThinking
-              merged = true
-              break
-            }
-          }
-          if (!merged) {
-            toolCalls.push(toolCall)
-          }
-        } else {
-          toolCalls.push(toolCall)
-        }
-
-        currentStep.tool_calls = toolCalls
-        steps[steps.length - 1] = currentStep
-        return { ...msg, steps }
-      })
     }
 
     setSessionStreaming(sessionId, true)
@@ -453,33 +395,24 @@ export function useChat() {
     const abortCtrl = new AbortController()
     abortCtrlBySession.set(sessionId, abortCtrl)
 
-    const onAgentFinish = (result: string) => {
-      updateSessionMessage(sessionId, assistantMsgId, (msg) => ({
-        ...msg,
-        final_answer: result
-      }))
-    }
-
     try {
       if (backendOnline.value) {
         await streamFromBackend(
           sessionId,
           combinedContent,
           appendAssistantContent,
-          getAssistantContent,
-          startNewStep,
-          appendToolCallToCurrentStep,
-          onAgentFinish,
+          toolCallIdToMsgId,
+          toolCallIdToToolName,
+          finishMsgIdRef,
           abortCtrl.signal,
         )
       } else {
-        await simulateStream(appendAssistantContent, combinedContent, stopSignal)
+        await simulateStream((text) => appendAssistantContent(text, 0), combinedContent, stopSignal)
       }
     } catch (err) {
       if ((err as Error).name !== 'AbortError') {
-        // 后端失败 → 回退到模拟
-        if (!getAssistantContent().trim()) {
-          await simulateStream(appendAssistantContent, combinedContent, stopSignal)
+        if (!getAssistantContentText(sessionId, assistantMsgId).trim()) {
+          await simulateStream((text) => appendAssistantContent(text, 0), combinedContent, stopSignal)
         }
       }
     } finally {
@@ -488,17 +421,23 @@ export function useChat() {
       abortCtrlBySession.delete(sessionId)
     }
 
-    if (!getAssistantContent().trim()) {
+    if (!getAssistantContentText(sessionId, assistantMsgId).trim()) {
       if (backendOnline.value) {
         try {
-          const historyData = await fetchJSON<{ messages?: Array<{ role: string; content: string }>; history?: Array<{ role: string; content: string }> }>(
+          const historyData = await fetchJSON<{
+            messages?: Array<{ role: string; content: string }>
+            history?: Array<{ role: string; content: string }>
+          }>(
             `${API_BASE}/api/v1/sessions/${sessionId}/history`,
           )
           const history = historyData.messages ?? historyData.history ?? []
-          for (let i = history.length - 1; i >= 0; i -= 1) {
+          for (let i = history.length - 1; i >= 0; i--) {
             const item = history[i]
             if (item.role === 'assistant' && item.content?.trim()) {
-              setAssistantContent(item.content)
+              updateSessionMessage(sessionId, assistantMsgId, (msg) => ({
+                ...msg,
+                content: item.content,
+              }))
               break
             }
           }
@@ -507,31 +446,37 @@ export function useChat() {
         }
       }
 
-      if (!getAssistantContent().trim()) {
-        setAssistantContent('抱歉，暂时无法获取回复。请检查服务后端是否正常运行。')
+      if (!getAssistantContentText(sessionId, assistantMsgId).trim()) {
+        updateSessionMessage(sessionId, assistantMsgId, (msg) => ({
+          ...msg,
+          content: '抱歉，暂时无法获取回复。请检查服务后端是否正常运行。',
+        }))
       }
     }
 
-    // 流式完成后，在第 1 轮和第 3 轮自动调用 LLM 生成标题
     if (backendOnline.value) {
       const sess = sessions.value.find(s => s.id === sessionId)
       const userCount = getSessionMessages(sessionId).filter(m => m.role === 'user').length
       if (userCount === 1 || userCount === 3) {
-        generateTitle(sessionId) // fire and forget
+        generateTitle(sessionId)
       } else if (!sess || !sess.title || sess.title === '新对话') {
-        generateTitle(sessionId) // fire and forget
+        generateTitle(sessionId)
       }
     }
+  }
+
+  function getAssistantContentText(sessionId: string, messageId: string): string {
+    const target = getSessionMessages(sessionId).find(m => m.id === messageId)
+    return target?.content || ''
   }
 
   async function streamFromBackend(
     sessionId: string,
     content: string,
-    appendAssistantContent: (text: string) => void,
-    getAssistantContent: () => string,
-    startNewStep: (stepNum: number) => void,
-    appendToolCallToCurrentStep: (toolCall: { type: 'thinking' | 'tool_call'; content?: string; tool_name?: string; arguments?: Record<string, unknown>; result?: string }) => void,
-    onAgentFinish: (result: string) => void,
+    appendAssistantContent: (text: string, step: number, isFinish?: boolean) => void,
+    toolCallIdToMsgId: Map<string, string>,
+    toolCallIdToToolName: Map<string, string>,
+    finishMsgIdRef: { current: string | null },
     signal: AbortSignal,
   ): Promise<void> {
     const res = await fetch(`${API_BASE}/api/v1/chat/completions/stream`, {
@@ -549,8 +494,6 @@ export function useChat() {
     const reader = res.body.getReader()
     const decoder = new TextDecoder()
     let buffer = ''
-
-    let currentStepNum = 0
 
     const handleSseBlock = (block: string) => {
       if (!block.trim()) return
@@ -584,80 +527,86 @@ export function useChat() {
         ((p?.type as string) || null) ??
         'message'
 
-      if (eventType === 'step_start') {
-        const d = p?.data as Record<string, unknown> | undefined
-        currentStepNum = (d?.step as number) || 0
-        if (currentStepNum > 0) {
-          startNewStep(currentStepNum)
-        }
-      } else if (eventType === 'llm_chunk') {
+      if (eventType === 'llm_chunk') {
         const d = p?.data as Record<string, unknown> | undefined
         const chunk = (d?.chunk ?? d?.delta ?? d?.content ?? p?.chunk ?? p?.delta ?? p?.content ?? '') as string
-        if (chunk) appendAssistantContent(chunk)
+        const step = (d?.step ?? p?.step ?? 0) as number
+        if (chunk) appendAssistantContent(chunk, step)
+      } else if (eventType === 'tool_call_start') {
+        const d = p?.data as Record<string, unknown> | undefined
+        const toolName = (d?.tool_name ?? '') as string
+        const toolCallId = (d?.tool_call_id ?? '') as string
+        if (toolName) {
+          toolCallIdToToolName.set(toolCallId, toolName)
+          if (toolName === 'Finish') {
+            return
+          }
+          const toolMsg: Message = {
+            id: genId(),
+            role: 'tool',
+            content: '',
+            time: getTime(),
+            metadata: { tool_name: toolName },
+          }
+          toolCallIdToMsgId.set(toolCallId, toolMsg.id)
+          pushSessionMessage(sessionId, toolMsg)
+        }
+      } else if (eventType === 'tool_call_chunk') {
+        const d = p?.data as Record<string, unknown> | undefined
+        const toolCallId = (d?.tool_call_id ?? '') as string
+        const chunk = (d?.chunk ?? '') as string
+        const toolName = toolCallIdToToolName.get(toolCallId)
+        if (toolName === 'Finish') {
+          const step = (d?.step ?? 0) as number
+          appendAssistantContent(chunk, step, true)
+        } else if (chunk) {
+          const msgId = toolCallIdToMsgId.get(toolCallId)
+          if (msgId) {
+            if (toolName === 'Thought') {
+              updateSessionMessage(sessionId, msgId, (msg) => ({
+                ...msg,
+                content: msg.content + chunk,
+              }))
+            } else {
+              updateSessionMessage(sessionId, msgId, (msg) => ({
+                ...msg,
+                metadata: {
+                  ...msg.metadata,
+                  arguments: (msg.metadata?.arguments ?? '') + chunk,
+                },
+              }))
+            }
+          }
+        }
       } else if (eventType === 'tool_call_finish') {
         const d = p?.data as Record<string, unknown> | undefined
-        const toolName = (d?.tool_name ?? d?.name ?? '') as string
+        const toolCallId = (d?.tool_call_id ?? '') as string
         const result = (d?.result ?? '') as string
+        const isBuiltin = d?.is_builtin as boolean
+        const toolName = toolCallIdToToolName.get(toolCallId)
         if (toolName === 'Finish') {
-          appendToolCallToCurrentStep({
-            type: 'tool_call',
-            tool_name: toolName,
-          })
-        } else if (toolName !== 'Thought') {
-          let args = {}
-          const argsRaw = d?.arguments ?? d?.args ?? '{}'
-          if (typeof argsRaw === 'string') {
-            try { args = JSON.parse(argsRaw) } catch { /* ignore */ }
-          } else if (typeof argsRaw === 'object') {
-            args = argsRaw as Record<string, unknown>
+          if (finishMsgIdRef.current) {
+            updateSessionMessage(sessionId, finishMsgIdRef.current, (msg) => ({
+              ...msg,
+              content: result,
+            }))
+            finishMsgIdRef.current = null
           }
-          appendToolCallToCurrentStep({
-            type: 'tool_call',
-            tool_name: toolName,
-            arguments: args,
-            result: result,
-          })
+          return
         }
-      } else if (eventType === 'thinking') {
-        const d = p?.data as Record<string, unknown> | undefined
-        const chunk = (d?.chunk ?? '') as string
-        if (chunk) {
-          appendToolCallToCurrentStep({
-            type: 'thinking',
-            content: chunk,
-          })
-        }
-      } else if (eventType === 'hitl_question') {
-        const d = p?.data as Record<string, unknown> | undefined
-        const hitlData = d as {
-          session_id?: string
-          questions?: Array<{
-            id: string
-            type: string
-            text: string
-            options?: Array<{ value: string; label: string }>
-            required?: boolean
-          }>
-        } | undefined
-        if (hitlData?.session_id && hitlData?.questions) {
-          const questions = hitlData.questions.map(q => ({
-            ...q,
-            type: q.type as 'text' | 'choice' | 'multi_choice' | 'yes_no'
+        const msgId = toolCallIdToMsgId.get(toolCallId)
+        if (msgId) {
+          updateSessionMessage(sessionId, msgId, (msg) => ({
+            ...msg,
+            content: isBuiltin ? result : msg.content + result,
           }))
-          hitlSession.value = {
-            session_id: hitlData.session_id,
-            questions
-          }
+          toolCallIdToMsgId.delete(toolCallId)
         }
-      } else if (eventType === 'agent_finish') {
-        const d = p?.data as Record<string, unknown> | undefined
-        const result = (d?.result ?? '') as string
-        if (result) {
-          onAgentFinish(result)
-        }
+        toolCallIdToToolName.delete(toolCallId)
       } else if (eventType === 'error') {
         const d = p?.data as Record<string, unknown> | undefined
-        appendAssistantContent((d?.message as string) ?? (p?.error as string) ?? '发生错误')
+        const step = (d?.step ?? p?.step ?? 0) as number
+        appendAssistantContent((d?.message as string) ?? (p?.error as string) ?? '发生错误', step)
       }
     }
 
@@ -732,7 +681,6 @@ export function useChat() {
   }
 
   async function newChat(): Promise<void> {
-    // 已有草稿会话且尚未发消息 → 直接切换过去，不重复创建
     if (draftSession.value) {
       currentSessionId.value = draftSession.value.id
       return
@@ -740,7 +688,6 @@ export function useChat() {
     await createDraftSession()
   }
 
-  // ─── 初始化 ─────────────────────────────────────────────────
   loadSessions().then(async () => {
     if (sessions.value.length > 0) {
       await selectSession(sessions.value[0].id)

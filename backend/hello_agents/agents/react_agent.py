@@ -387,17 +387,27 @@ class ReActAgent(Agent):
         return final_answer
 
     def _build_messages(self, input_text: str) -> List[Dict[str, str]]:
-        """构建消息列表"""
+        """构建消息列表
+
+        只包含文本消息，跳过 tool 消息（避免 OpenAI API 格式问题）。
+        """
         messages = []
 
-        # 添加系统提示词
         if self.system_prompt:
             messages.append({
                 "role": "system",
                 "content": self.system_prompt
             })
 
-        # 添加用户问题
+        history = self.get_history()
+        for msg in history:
+            if msg.role == "tool":
+                continue
+            messages.append({
+                "role": msg.role,
+                "content": msg.content
+            })
+
         messages.append({
             "role": "user",
             "content": input_text

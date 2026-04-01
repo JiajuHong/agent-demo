@@ -88,7 +88,6 @@ async def get_session_history(
         raise HTTPException(status_code=404, detail="Session not found")
     return SessionHistoryVO(
         session_id=session_id,
-        messages=history,
         history=history,
         history_count=len(history),
     ).model_dump()
