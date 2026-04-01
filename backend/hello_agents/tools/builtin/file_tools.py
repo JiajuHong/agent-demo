@@ -140,7 +140,8 @@ class ReadTool(Tool):
                 })
 
             return ToolResponse.success(
-                text=f"读取 {len(lines)} 行（共 {total_lines} 行，{file_size_bytes} 字节）",
+                # text=f"读取 {len(lines)} 行（共 {total_lines} 行，{file_size_bytes} 字节）",
+                text=content,
                 data={
                     "content": content,
                     "lines": len(lines),

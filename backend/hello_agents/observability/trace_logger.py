@@ -108,12 +108,16 @@ class TraceLogger:
         
         # 追加到缓存
         self._events.append(event_obj)
-        
-        # 流式写入 JSONL
+
+        # 流式写入 JSONL（检查文件是否已关闭）
+        if self.jsonl_file.closed:
+            self.jsonl_file = open(self.jsonl_path, 'a', encoding='utf-8')
         self.jsonl_file.write(json.dumps(event_obj, ensure_ascii=False) + "\n")
         self.jsonl_file.flush()
-        
-        # 增量写入 HTML 事件片段
+
+        # 增量写入 HTML 事件片段（检查文件是否已关闭）
+        if self.html_file.closed:
+            self.html_file = open(self.html_path, 'a', encoding='utf-8')
         self._write_html_event(event_obj)
     
     def _sanitize_event(self, event: Dict) -> Dict:
