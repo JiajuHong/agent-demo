@@ -178,9 +178,9 @@ npm run dev
 - Monaco Editor - 代码编辑器
 
 ## 效果图
-![pic1](./pictures/截屏2026-04-03 03.24.35.png)
-![pic2](./pictures/截屏2026-04-03 03.25.35.png)
-![pic3](./pictures/截屏2026-04-03 03.26.02.png)
-![pic4](./pictures/截屏2026-04-03 03.26.12.png)
-![pic5](./pictures/截屏2026-04-03 03.26.21.png)
-![pic6](./pictures/截屏2026-04-03 03.26.26.png)
+![pic1](./pictures/screenshot-01.png)
+![pic2](./pictures/screenshot-02.png)
+![pic3](./pictures/screenshot-03.png)
+![pic4](./pictures/screenshot-04.png)
+![pic5](./pictures/screenshot-05.png)
+![pic6](./pictures/screenshot-06.png)
