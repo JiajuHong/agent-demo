@@ -1,0 +1,479 @@
+/* AirPods 风格蓝牙耳机盒 - CSS 3D 实现 */
+
+/* 3D 场景设置 */
+.case {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    transform-style: preserve-3d;
+    transform: rotateX(-20deg) rotateY(20deg);
+    transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* 鼠标悬停时盖子打开效果 */
+.airpods-container:hover .lid {
+    transform: rotateX(-110deg);
+}
+
+/* 盖子样式 */
+.lid {
+    position: absolute;
+    width: 240px;
+    height: 180px;
+    transform-style: preserve-3d;
+    transform-origin: bottom center;
+    transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 10;
+}
+
+.lid-inner {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+}
+
+/* 盖子顶部 */
+.lid-top {
+    position: absolute;
+    width: 240px;
+    height: 180px;
+    background: linear-gradient(145deg, #f5f5f7, #e8e8ed);
+    border-radius: 20px 20px 8px 8px;
+    transform: translateZ(10px);
+    box-shadow: 
+        inset 0 2px 10px rgba(255, 255, 255, 0.8),
+        inset 0 -2px 10px rgba(0, 0, 0, 0.1),
+        0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* 盖子前部 */
+.lid-front {
+    position: absolute;
+    width: 240px;
+    height: 20px;
+    background: linear-gradient(to bottom, #e0e0e5, #d0d0d8);
+    border-radius: 0 0 8px 8px;
+    transform: rotateX(90deg) translateZ(90px);
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* 盒体容器 */
+.body {
+    position: absolute;
+    width: 240px;
+    height: 180px;
+    transform-style: preserve-3d;
+    transform: translateY(90px);
+}
+
+/* 盒体各个面 */
+.body-front, .body-back, .body-left, .body-right, .body-top, .body-bottom {
+    position: absolute;
+    background: linear-gradient(145deg, #f5f5f7, #e8e8ed);
+    box-shadow: 
+        inset 0 2px 10px rgba(255, 255, 255, 0.8),
+        inset 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 前部 */
+.body-front {
+    width: 240px;
+    height: 180px;
+    transform: translateZ(10px);
+    border-radius: 20px 20px 8px 8px;
+}
+
+/* 后部 */
+.body-back {
+    width: 240px;
+    height: 180px;
+    transform: rotateY(180deg) translateZ(10px);
+    border-radius: 20px 20px 8px 8px;
+}
+
+/* 左侧 */
+.body-left {
+    width: 20px;
+    height: 180px;
+    background: linear-gradient(to right, #e0e0e5, #d0d0d8);
+    transform: rotateY(-90deg) translateZ(10px);
+    border-radius: 8px 0 0 8px;
+}
+
+/* 右侧 */
+.body-right {
+    width: 20px;
+    height: 180px;
+    background: linear-gradient(to left, #e0e0e5, #d0d0d8);
+    transform: rotateY(90deg) translateZ(230px);
+    border-radius: 0 8px 8px 0;
+}
+
+/* 顶部 */
+.body-top {
+    width: 240px;
+    height: 20px;
+    background: linear-gradient(to bottom, #f0f0f5, #e8e8ed);
+    transform: rotateX(90deg) translateZ(10px);
+    border-radius: 20px 20px 0 0;
+}
+
+/* 底部 */
+.body-bottom {
+    width: 240px;
+    height: 20px;
+    background: linear-gradient(to top, #d0d0d8, #e0e0e5);
+    transform: rotateX(-90deg) translateZ(170px);
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* 充电指示灯 */
+.charging-light {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: #00ff88;
+    border-radius: 50%;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateZ(11px);
+    box-shadow: 
+        0 0 10px #00ff88,
+        0 0 20px #00ff88,
+        0 0 30px #00ff88;
+    animation: charging-pulse 2s infinite ease-in-out;
+    z-index: 5;
+}
+
+@keyframes charging-pulse {
+    0%, 100% {
+        opacity: 0.7;
+        box-shadow: 
+            0 0 5px #00ff88,
+            0 0 10px #00ff88,
+            0 0 15px #00ff88;
+    }
+    50% {
+        opacity: 1;
+        box-shadow: 
+            0 0 15px #00ff88,
+            0 0 25px #00ff88,
+            0 0 35px #00ff88;
+    }
+}
+
+/* 耳机槽位容器 */
+.earbuds-container {
+    position: absolute;
+    width: 200px;
+    height: 120px;
+    top: 40px;
+    left: 20px;
+    transform-style: preserve-3d;
+    transform: translateZ(9px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 单个耳机样式 */
+.earbud {
+    position: relative;
+    width: 80px;
+    height: 120px;
+    transform-style: preserve-3d;
+    transition: transform 0.5s ease;
+}
+
+.airpods-container:hover .earbud {
+    transform: translateY(-5px);
+}
+
+/* 左耳机 */
+.left-earbud {
+    transform: rotateY(5deg);
+}
+
+/* 右耳机 */
+.right-earbud {
+    transform: rotateY(-5deg);
+}
+
+/* 耳机尖端 */
+.earbud-tip {
+    position: absolute;
+    width: 20px;
+    height: 30px;
+    background: linear-gradient(to bottom, #2c2c2e, #1c1c1e);
+    border-radius: 10px 10px 0 0;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%) translateZ(1px);
+    box-shadow: inset 0 -2px 5px rgba(0, 0, 0, 0.5);
+}
+
+/* 耳机主体 */
+.earbud-body {
+    position: absolute;
+    width: 60px;
+    height: 90px;
+    background: linear-gradient(145deg, #f5f5f7, #e8e8ed);
+    border-radius: 30px;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateZ(1px);
+    box-shadow: 
+        inset 0 3px 10px rgba(255, 255, 255, 0.9),
+        inset 0 -3px 10px rgba(0, 0, 0, 0.1),
+        0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* 耳机主体上的细节 */
+.earbud-body::before {
+    content: '';
+    position: absolute;
+    width: 40px;
+    height: 10px;
+    background: linear-gradient(to right, #d0d0d8, #e8e8ed);
+    border-radius: 5px;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.earbud-body::after {
+    content: '';
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    background: #1c1c1e;
+    border-radius: 50%;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.3);
+}
+
+/* 充电接口 */
+.charging-port {
+    position: absolute;
+    width: 30px;
+    height: 8px;
+    background: linear-gradient(to bottom, #1c1c1e, #2c2c2e);
+    border-radius: 4px;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%) translateZ(9px);
+    box-shadow: 
+        inset 0 1px 3px rgba(255, 255, 255, 0.2),
+        0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* 充电接口内部细节 */
+.charging-port::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 4px;
+    background: linear-gradient(to bottom, #3a3a3c, #2a2a2c);
+    border-radius: 2px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* 添加一些内部细节 */
+.body-front::before {
+    content: '';
+    position: absolute;
+    width: 180px;
+    height: 2px;
+    background: linear-gradient(to right, 
+        transparent 0%, 
+        rgba(200, 200, 210, 0.8) 20%, 
+        rgba(200, 200, 210, 0.8) 80%, 
+        transparent 100%);
+    top: 30px;
+    left: 30px;
+    border-radius: 1px;
+}
+
+.body-front::after {
+    content: '';
+    position: absolute;
+    width: 160px;
+    height: 4px;
+    background: linear-gradient(to right, 
+        transparent 0%, 
+        rgba(180, 180, 190, 0.6) 30%, 
+        rgba(180, 180, 190, 0.6) 70%, 
+        transparent 100%);
+    bottom: 40px;
+    left: 40px;
+    border-radius: 2px;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .case {
+        width: 250px;
+        height: 250px;
+    }
+    
+    .lid, .body {
+        width: 200px;
+        height: 150px;
+    }
+    
+    .lid-top, .body-front, .body-back {
+        width: 200px;
+        height: 150px;
+    }
+    
+    .body-right {
+        transform: rotateY(90deg) translateZ(190px);
+    }
+    
+    .body-bottom {
+        transform: rotateX(-90deg) translateZ(140px);
+    }
+    
+    .lid-front {
+        transform: rotateX(90deg) translateZ(75px);
+    }
+    
+    .earbuds-container {
+        width: 160px;
+        height: 100px;
+        top: 30px;
+        left: 20px;
+    }
+    
+    .earbud {
+        width: 65px;
+        height: 100px;
+    }
+    
+    .earbud-body {
+        width: 50px;
+        height: 75px;
+    }
+}
+
+@media (max-width: 480px) {
+    .case {
+        width: 200px;
+        height: 200px;
+    }
+    
+    .lid, .body {
+        width: 160px;
+        height: 120px;
+    }
+    
+    .lid-top, .body-front, .body-back {
+        width: 160px;
+        height: 120px;
+        border-radius: 15px 15px 6px 6px;
+    }
+    
+    .body-right {
+        transform: rotateY(90deg) translateZ(150px);
+    }
+    
+    .body-bottom {
+        transform: rotateX(-90deg) translateZ(110px);
+    }
+    
+    .lid-front {
+        transform: rotateX(90deg) translateZ(60px);
+    }
+    
+    .earbuds-container {
+        width: 130px;
+        height: 80px;
+        top: 25px;
+        left: 15px;
+    }
+    
+    .earbud {
+        width: 50px;
+        height: 80px;
+    }
+    
+    .earbud-body {
+        width: 40px;
+        height: 60px;
+        border-radius: 20px;
+    }
+    
+    .earbud-tip {
+        width: 15px;
+        height: 25px;
+    }
+}
+
+/* 加载动画 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: rotateX(-20deg) rotateY(20deg) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: rotateX(-20deg) rotateY(20deg) scale(1);
+    }
+}
+
+.case {
+    animation: fadeIn 1s ease-out;
+}
+
+/* 添加一些光泽效果 */
+.lid-top::after, .body-front::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    background: linear-gradient(to bottom, 
+        rgba(255, 255, 255, 0.4) 0%,
+        rgba(255, 255, 255, 0.1) 50%,
+        transparent 100%);
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+/* 添加磁吸效果指示 */
+.lid-front::before {
+    content: '';
+    position: absolute;
+    width: 40px;
+    height: 4px;
+    background: linear-gradient(to right, 
+        rgba(100, 100, 120, 0.3) 0%,
+        rgba(150, 150, 170, 0.6) 50%,
+        rgba(100, 100, 120, 0.3) 100%);
+    border-radius: 2px;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* 品牌标识 */
+.body-front::after {
+    content: 'AirPods';
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%) translateZ(11px);
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: #8e8e93;
+    letter-spacing: 1px;
+    opacity: 0.7;
+}

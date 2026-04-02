@@ -1,0 +1,380 @@
+/**
+ * 统计计算模块
+ * 计算各种统计数据
+ */
+
+const StatsCalculator = {
+    // 依赖注入
+    recordsManager: null,
+
+    /**
+     * 初始化统计计算器
+     * @param {object} recordsManager - 记录管理器实例
+     */
+    init(recordsManager) {
+        this.recordsManager = recordsManager;
+    },
+
+    /**
+     * 计算所有统计数据
+     * @returns {object} 统计信息对象
+     */
+    calculateAllStats() {
+        try {
+            if (!this.recordsManager) {
+                console.error('记录管理器未初始化');
+                return this.getEmptyStats();
+            }
+
+            const todayRecords = this.recordsManager.getTodayRecords();
+            const settings = this.recordsManager.getSettings();
+            
+            return {
+                todayCount: this.calculateTodayCount(todayRecords),
+                spentMoney: this.calculateSpentMoney(todayRecords.length, settings.cigarettePrice),
+                lastTime: this.formatLastTime(todayRecords),
+                avgInterval: this.calculateAverageInterval(todayRecords),
+                dailyGoalProgress: this.calculateDailyGoalProgress(todayRecords.length, settings.dailyGoal),
+                totalSpentMoney: this.calculateTotalSpentMoney(),
+                streakDays: this.calculateStreakDays(),
+                timeSinceLast: this.calculateTimeSinceLast(todayRecords)
+            };
+        } catch (error) {
+            console.error('计算统计数据失败:', error);
+            return this.getEmptyStats();
+        }
+    },
+
+    /**
+     * 计算今日抽烟次数
+     * @param {Array} todayRecords - 今日记录数组
+     * @returns {number} 今日抽烟次数
+     */
+    calculateTodayCount(todayRecords) {
+        return todayRecords ? todayRecords.length : 0;
+    },
+
+    /**
+     * 计算节省金额
+     * @param {number} count - 抽烟次数
+     * @param {number} price - 每支烟价格
+     * @returns {number} 节省金额
+     */
+    calculateSavedMoney(count, price) {
+        if (typeof count !== 'number' || typeof price !== 'number') {
+            return 0;
+        }
+        return parseFloat((count * price).toFixed(2));
+    },
+
+    /**
+     * 计算总节省金额
+     * @returns {number} 总节省金额
+     */
+    calculateTotalSavedMoney() {
+        try {
+            const allRecords = this.recordsManager.getAllRecords();
+            const settings = this.recordsManager.getSettings();
+            const totalCount = allRecords.length;
+            return this.calculateSavedMoney(totalCount, settings.cigarettePrice);
+        } catch (error) {
+            console.error('计算总节省金额失败:', error);
+            return 0;
+        }
+    },
+
+    /**
+     * 格式化最近一次抽烟时间
+     * @param {Array} todayRecords - 今日记录数组
+     * @returns {string} 格式化时间字符串
+     */
+    formatLastTime(todayRecords) {
+        if (!todayRecords || todayRecords.length === 0) {
+            return '--:--';
+        }
+
+        const lastRecord = todayRecords[0]; // 已经按时间倒序排序
+        const lastTime = new Date(lastRecord.timestamp);
+        
+        // 格式化时间为 HH:MM
+        const hours = String(lastTime.getHours()).padStart(2, '0');
+        const minutes = String(lastTime.getMinutes()).padStart(2, '0');
+        
+        return `${hours}:${minutes}`;
+    },
+
+    /**
+     * 计算平均抽烟间隔
+     * @param {Array} todayRecords - 今日记录数组
+     * @returns {string} 平均间隔描述
+     */
+    calculateAverageInterval(todayRecords) {
+        if (!todayRecords || todayRecords.length < 2) {
+            return '--';
+        }
+
+        // 按时间戳升序排序
+        const sortedRecords = [...todayRecords].sort((a, b) => a.timestamp - b.timestamp);
+        
+        let totalInterval = 0;
+        let intervalCount = 0;
+        
+        // 计算相邻记录之间的间隔
+        for (let i = 1; i < sortedRecords.length; i++) {
+            const interval = sortedRecords[i].timestamp - sortedRecords[i - 1].timestamp;
+            totalInterval += interval;
+            intervalCount++;
+        }
+        
+        if (intervalCount === 0) {
+            return '--';
+        }
+        
+        const avgIntervalMs = totalInterval / intervalCount;
+        return this.formatInterval(avgIntervalMs);
+    },
+
+    /**
+     * 计算距离上次抽烟的时间
+     * @param {Array} todayRecords - 今日记录数组
+     * @returns {string} 时间间隔描述
+     */
+    calculateTimeSinceLast(todayRecords) {
+        if (!todayRecords || todayRecords.length === 0) {
+            return '今天还没抽烟';
+        }
+
+        const lastRecord = todayRecords[0];
+        const now = Date.now();
+        const timeSinceLast = now - lastRecord.timestamp;
+        
+        return this.formatInterval(timeSinceLast);
+    },
+
+    /**
+     * 计算每日目标进度
+     * @param {number} todayCount - 今日抽烟次数
+     * @param {number} dailyGoal - 每日目标
+     * @returns {number} 进度百分比（0-100）
+     */
+    calculateDailyGoalProgress(todayCount, dailyGoal) {
+        if (typeof todayCount !== 'number' || typeof dailyGoal !== 'number' || dailyGoal <= 0) {
+            return 0;
+        }
+        
+        const progress = (todayCount / dailyGoal) * 100;
+        return Math.min(Math.max(progress, 0), 100); // 限制在0-100之间
+    },
+
+    /**
+     * 计算连续天数
+     * @returns {number} 连续天数
+     */
+    calculateStreakDays() {
+        try {
+            const allRecords = this.recordsManager.getAllRecords();
+            if (allRecords.length === 0) {
+                return 0;
+            }
+
+            // 获取所有有记录的日期
+            const datesSet = new Set();
+            allRecords.forEach(record => {
+                datesSet.add(record.date);
+            });
+
+            // 将日期转换为时间戳并排序
+            const dates = Array.from(datesSet)
+                .map(date => new Date(date).getTime())
+                .sort((a, b) => b - a); // 降序排序
+
+            if (dates.length === 0) {
+                return 0;
+            }
+
+            // 检查连续天数
+            let streak = 1;
+            const oneDay = 24 * 60 * 60 * 1000;
+            
+            for (let i = 0; i < dates.length - 1; i++) {
+                const diff = dates[i] - dates[i + 1];
+                if (Math.abs(diff - oneDay) < oneDay) { // 允许一天误差
+                    streak++;
+                } else {
+                    break;
+                }
+            }
+
+            return streak;
+        } catch (error) {
+            console.error('计算连续天数失败:', error);
+            return 0;
+        }
+    },
+
+    /**
+     * 获取趋势数据（最近7天）
+     * @returns {Array} 趋势数据数组
+     */
+    getTrendData() {
+        try {
+            const allRecords = this.recordsManager.getAllRecords();
+            if (allRecords.length === 0) {
+                return [];
+            }
+
+            // 按日期分组统计
+            const recordsByDate = {};
+            allRecords.forEach(record => {
+                if (!recordsByDate[record.date]) {
+                    recordsByDate[record.date] = 0;
+                }
+                recordsByDate[record.date]++;
+            });
+
+            // 获取最近7天的日期
+            const dates = [];
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                dates.push(dateStr);
+            }
+
+            // 构建趋势数据
+            const trendData = dates.map(date => ({
+                date: date,
+                count: recordsByDate[date] || 0,
+                day: this.getDayOfWeek(date)
+            }));
+
+            return trendData;
+        } catch (error) {
+            console.error('获取趋势数据失败:', error);
+            return [];
+        }
+    },
+
+    /**
+     * 获取建议信息
+     * @param {object} stats - 统计信息
+     * @returns {string} 建议文本
+     */
+    getAdvice(stats) {
+        if (!stats) {
+            return '开始记录你的抽烟习惯吧！';
+        }
+
+        const { todayCount, avgInterval, dailyGoalProgress } = stats;
+        
+        if (todayCount === 0) {
+            return '今天表现很好，继续保持！';
+        }
+        
+        if (dailyGoalProgress >= 100) {
+            return '已达到今日目标，建议控制一下哦！';
+        }
+        
+        if (avgInterval !== '--') {
+            const avgMinutes = this.parseIntervalToMinutes(avgInterval);
+            if (avgMinutes < 60) {
+                return '抽烟间隔较短，尝试延长间隔时间。';
+            } else if (avgMinutes > 180) {
+                return '控制得很好，继续保持！';
+            }
+        }
+        
+        return '继续努力，控制抽烟频率！';
+    },
+
+    // 辅助方法
+
+    /**
+     * 格式化时间间隔
+     * @param {number} intervalMs - 间隔毫秒数
+     * @returns {string} 格式化后的间隔
+     */
+    formatInterval(intervalMs) {
+        const seconds = Math.floor(intervalMs / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        
+        if (hours > 0) {
+            const remainingMinutes = minutes % 60;
+            if (remainingMinutes > 0) {
+                return `${hours}小时${remainingMinutes}分钟`;
+            }
+            return `${hours}小时`;
+        }
+        
+        if (minutes > 0) {
+            const remainingSeconds = seconds % 60;
+            if (remainingSeconds > 0) {
+                return `${minutes}分钟${remainingSeconds}秒`;
+            }
+            return `${minutes}分钟`;
+        }
+        
+        return `${seconds}秒`;
+    },
+
+    /**
+     * 将间隔字符串解析为分钟数
+     * @param {string} intervalStr - 间隔字符串
+     * @returns {number} 分钟数
+     */
+    parseIntervalToMinutes(intervalStr) {
+        if (!intervalStr || intervalStr === '--') {
+            return 0;
+        }
+        
+        let totalMinutes = 0;
+        
+        // 匹配小时
+        const hourMatch = intervalStr.match(/(\d+)小时/);
+        if (hourMatch) {
+            totalMinutes += parseInt(hourMatch[1]) * 60;
+        }
+        
+        // 匹配分钟
+        const minuteMatch = intervalStr.match(/(\d+)分钟/);
+        if (minuteMatch) {
+            totalMinutes += parseInt(minuteMatch[1]);
+        }
+        
+        return totalMinutes;
+    },
+
+    /**
+     * 获取星期几
+     * @param {string} dateStr - 日期字符串
+     * @returns {string} 星期几
+     */
+    getDayOfWeek(dateStr) {
+        const date = new Date(dateStr);
+        const days = ['日', '一', '二', '三', '四', '五', '六'];
+        return `周${days[date.getDay()]}`;
+    },
+
+    /**
+     * 获取空的统计信息
+     * @returns {object} 空的统计信息
+     */
+    getEmptyStats() {
+        return {
+            todayCount: 0,
+            savedMoney: 0,
+            lastTime: '--:--',
+            avgInterval: '--',
+            dailyGoalProgress: 0,
+            totalSavedMoney: 0,
+            streakDays: 0,
+            timeSinceLast: '今天还没抽烟'
+        };
+    }
+};
+
+// 导出模块
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = StatsCalculator;
+}

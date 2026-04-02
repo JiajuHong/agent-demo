@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抽烟小助手</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 头部 -->
+        <header class="app-header">
+            <div class="header-content">
+                <i class="fas fa-smoking"></i>
+                <h1>抽烟小助手</h1>
+                <div class="header-subtitle">记录抽烟，控制习惯</div>
+            </div>
+        </header>
+
+        <!-- 统计卡片区域 -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-fire"></i>
+                </div>
+                <h3>今日抽烟次数</h3>
+                <div class="stat-value" id="today-count">0</div>
+                <div class="stat-unit">次</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <h3>节省金额</h3>
+                <div class="stat-value" id="saved-money">¥0</div>
+                <div class="stat-unit">元</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3>最近一次</h3>
+                <div class="stat-value" id="last-time">--:--</div>
+                <div class="stat-unit">时间</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>平均间隔</h3>
+                <div class="stat-value" id="avg-interval">--</div>
+                <div class="stat-unit">分钟</div>
+            </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="actions-container">
+            <button id="record-btn" class="btn-primary">
+                <i class="fas fa-plus-circle"></i>
+                记录抽烟
+            </button>
+            <button id="reset-btn" class="btn-secondary">
+                <i class="fas fa-redo"></i>
+                重置今日数据
+            </button>
+        </div>
+
+        <!-- 设置区域 -->
+        <div class="settings-container">
+            <div class="settings-header">
+                <i class="fas fa-cog"></i>
+                <h3>设置</h3>
+            </div>
+            <div class="settings-content">
+                <div class="setting-item">
+                    <label for="cigarette-price">
+                        <i class="fas fa-tag"></i>
+                        每支烟价格（元）
+                    </label>
+                    <div class="input-group">
+                        <input type="number" id="cigarette-price" min="0" step="0.1" value="5">
+                        <span class="input-unit">元/支</span>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <label for="daily-goal">
+                        <i class="fas fa-bullseye"></i>
+                        每日目标（最多抽几支）
+                    </label>
+                    <div class="input-group">
+                        <input type="number" id="daily-goal" min="1" step="1" value="10">
+                        <span class="input-unit">支/天</span>
+                    </div>
+                </div>
+                <button id="save-settings" class="btn-settings">
+                    <i class="fas fa-save"></i>
+                    保存设置
+                </button>
+            </div>
+        </div>
+
+        <!-- 历史记录 -->
+        <div class="history-container">
+            <div class="history-header">
+                <i class="fas fa-history"></i>
+                <h3>今日记录</h3>
+                <div class="history-count" id="history-count">0 条记录</div>
+            </div>
+            <div class="history-list" id="history-list">
+                <div class="empty-history">
+                    <i class="fas fa-smoking-ban"></i>
+                    <p>今天还没有抽烟记录</p>
+                    <p class="empty-hint">点击"记录抽烟"按钮开始记录</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 进度条 -->
+        <div class="progress-container">
+            <div class="progress-header">
+                <i class="fas fa-chart-pie"></i>
+                <h3>今日进度</h3>
+                <div class="progress-percent" id="progress-percent">0%</div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <div class="progress-text">
+                <span id="progress-text">0 / 10 支</span>
+            </div>
+        </div>
+
+        <!-- 提示信息 -->
+        <div id="message-toast" class="message-toast">
+            <div class="toast-content">
+                <i class="fas fa-check-circle"></i>
+                <span id="toast-message">操作成功</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 确认对话框 -->
+    <div id="confirm-dialog" class="confirm-dialog">
+        <div class="dialog-content">
+            <div class="dialog-header">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>确认操作</h3>
+            </div>
+            <div class="dialog-body">
+                <p id="confirm-message">确定要执行此操作吗？</p>
+            </div>
+            <div class="dialog-actions">
+                <button id="confirm-cancel" class="btn-dialog-cancel">取消</button>
+                <button id="confirm-ok" class="btn-dialog-ok">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 脚本引入 -->
+    <script src="modules/storage.js"></script>
+    <script src="modules/records.js"></script>
+    <script src="modules/stats.js"></script>
+    <script src="modules/ui.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

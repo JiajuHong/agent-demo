@@ -2,6 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import { FileText, Code, Eye, EyeOff, ChevronDown, Save, Download } from 'lucide-vue-next'
 import MarkdownIt from 'markdown-it'
+import hljs from 'highlight.js'
 import mermaid from 'mermaid'
 import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
 
@@ -39,6 +40,18 @@ const md = new MarkdownIt({
   html: true,
   linkify: true,
   typographer: true,
+  highlight: function (str: string, lang: string): string {
+    if (lang && hljs.getLanguage(lang)) {
+      try {
+        return '<pre class="hljs"><code>' +
+          hljs.highlight(str, { language: lang, ignoreIllegals: true }).value +
+          '</code></pre>'
+      } catch {
+        // ignore
+      }
+    }
+    return '<pre class="hljs"><code>' + MarkdownIt().utils.escapeHtml(str) + '</code></pre>'
+  }
 })
 
 const editorOptions = computed(() => ({
