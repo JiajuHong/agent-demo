@@ -293,6 +293,9 @@ class CodeGenAgent(ReActAgent):
 
                     return
 
+                user_tool_calls = [tc for tc in tool_calls if tc.name != "Finish"]
+                has_finish_only = not full_response and any(tc.name == "Finish" for tc in tool_calls)
+
                 messages.append({
                     "role": "assistant",
                     "content": full_response,
@@ -308,21 +311,23 @@ class CodeGenAgent(ReActAgent):
                         for tc in tool_calls
                     ]
                 })
-                self.add_message(Message(
-                    full_response,
-                    "assistant",
-                    tool_calls=[
-                        {
-                            "id": tc.id,
-                            "type": "function",
-                            "function": {
-                                "name": tc.name,
-                                "arguments": tc.arguments
+
+                if not has_finish_only:
+                    self.add_message(Message(
+                        full_response,
+                        "assistant",
+                        tool_calls=[
+                            {
+                                "id": tc.id,
+                                "type": "function",
+                                "function": {
+                                    "name": tc.name,
+                                    "arguments": tc.arguments
+                                }
                             }
-                        }
-                        for tc in tool_calls
-                    ] if tool_calls else None
-                ))
+                            for tc in user_tool_calls
+                        ] if user_tool_calls else None
+                    ))
 
                 if trace_logger:
                     for tc in tool_calls:

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, nextTick, watch, ref } from 'vue'
+import { onMounted, nextTick, watch, ref, computed } from 'vue'
 import MarkdownIt from 'markdown-it'
 import hljs from 'highlight.js'
 import katex from 'katex'
@@ -20,6 +20,20 @@ const props = defineProps<{
 }>()
 
 const renderedHtml = ref('')
+
+function formatJsonArgs(argsStr: string): string {
+  try {
+    const parsed = JSON.parse(argsStr)
+    return JSON.stringify(parsed, null, 2)
+  } catch {
+    return argsStr
+  }
+}
+
+const formattedArgs = computed(() => {
+  if (!props.message.metadata?.arguments) return ''
+  return formatJsonArgs(props.message.metadata.arguments)
+})
 
 const md = new MarkdownIt({
   html: false,
@@ -213,8 +227,8 @@ watch(
       <template v-else-if="message.role === 'tool'">
         <div class="tool-inline">
           <span class="tool-label">{{ message.metadata?.tool_name || 'tool' }}</span>
-          <div v-if="message.metadata?.arguments" class="tool-args">
-            <pre><code>{{ message.metadata.arguments }}</code></pre>
+          <div v-if="formattedArgs" class="tool-args">
+            <pre><code>{{ formattedArgs }}</code></pre>
           </div>
           <div
             class="tool-content"

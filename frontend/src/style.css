@@ -1,9 +1,8 @@
+@import 'highlight.js/styles/github-dark.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* ─── Highlight.js theme ─────────────────────────────────── */
-@import 'highlight.js/styles/github-dark.css';
 
 /* ─── Theme tokens ─────────────────────────────────────────── */
 :root {
@@ -25,6 +24,15 @@
   --brand-h:     #3a6de0;
   --code-bg:     #1e1e2f;
   --scrollbar:   #c0c0d0;
+  /* Tool inline styles */
+  --tool-inline-bg: #f3f4f6;
+  --tool-inline-border: #6b7280;
+  --tool-inline-label-color: #6b7280;
+  --tool-args-bg: #ffffff;
+  --tool-args-border: #e5e7eb;
+  --tool-args-color: #374151;
+  --tool-inline-content-color: #374151;
+  --inline-code-bg: rgba(79,125,240,.1);
 }
 .dark {
   --bg:          #17181c;
@@ -45,6 +53,15 @@
   --brand-h:     #5e79ff;
   --code-bg:     #12121f;
   --scrollbar:   #4a4a6a;
+  /* Tool inline styles */
+  --tool-inline-bg: #1f2937;
+  --tool-inline-border: #6b7280;
+  --tool-inline-label-color: #9ca3af;
+  --tool-args-bg: #374151;
+  --tool-args-border: #4b5563;
+  --tool-args-color: #e5e7f3;
+  --tool-inline-content-color: #e5e7f3;
+  --inline-code-bg: rgba(255,255,255,.10);
 }
 
 /* ─── Base reset ───────────────────────────────────────────── */
