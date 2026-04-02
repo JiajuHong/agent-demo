@@ -66,30 +66,6 @@ async function onRenameTitle(title: string) {
   await renameSession(currentSessionId.value, title)
 }
 
-const API_BASE = (import.meta.env.VITE_API_BASE_URL as string) || 'http://127.0.0.1:8000'
-
-async function submitHitlAnswer(
-  hitlData: typeof hitlSession.value,
-  answers: Array<{ id: string; answer: string | string[] }>
-) {
-  if (!hitlData) return
-  console.log('🎯 HITL 用户回答:', JSON.stringify(answers, null, 2))
-  try {
-    await fetch(`${API_BASE}/api/v1/chat/hitl/answer`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        session_id: hitlData.session_id,
-        answers
-      })
-    })
-  } catch (err) {
-    console.error('HITL submit failed:', err)
-  }
-  // 清空 HITL session
-  hitlSession.value = null
-}
-
 // ─── Auto-scroll ──────────────────────────────────────────────
 const messageArea = ref<HTMLDivElement | null>(null)
 const autoScrollEnabled = ref(true)
