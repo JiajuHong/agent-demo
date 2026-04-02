@@ -1,0 +1,41 @@
+{
+  "name": "wordmaster-frontend",
+  "version": "1.0.0",
+  "description": "WordMaster 单词记忆应用前端",
+  "main": "main.js",
+  "scripts": {
+    "serve": "npm run dev:h5",
+    "build": "npm run build:h5",
+    "build:app": "uni build --platform app",
+    "build:h5": "uni build --platform h5",
+    "build:mp-alipay": "uni build --platform mp-alipay",
+    "build:mp-baidu": "uni build --platform mp-baidu",
+    "build:mp-weixin": "uni build --platform mp-weixin",
+    "build:quickapp": "uni build --platform quickapp",
+    "dev:app": "uni --platform app",
+    "dev:h5": "uni --platform h5",
+    "dev:mp-alipay": "uni --platform mp-alipay",
+    "dev:mp-baidu": "uni --platform mp-baidu",
+    "dev:mp-weixin": "uni --platform mp-weixin",
+    "dev:quickapp": "uni --platform quickapp"
+  },
+  "dependencies": {
+    "@dcloudio/uni-app": "3.0.0",
+    "@dcloudio/uni-app-plus": "3.0.0",
+    "@dcloudio/uni-components": "3.0.0",
+    "@dcloudio/uni-h5": "3.0.0",
+    "@dcloudio/uni-mp-alipay": "3.0.0",
+    "@dcloudio/uni-mp-baidu": "3.0.0",
+    "@dcloudio/uni-mp-weixin": "3.0.0",
+    "@dcloudio/uni-quickapp": "3.0.0",
+    "vue": "^3.3.11",
+    "vue-i18n": "^9.2.2"
+  },
+  "devDependencies": {
+    "@dcloudio/types": "3.4.8",
+    "@dcloudio/uni-automator": "3.0.0-5000620260331001",
+    "@dcloudio/uni-cli-shared": "3.0.0-5000620260331001",
+    "@dcloudio/vite-plugin-uni": "3.0.0-5000620260331001",
+    "vite": "4.5.1"
+  }
+}

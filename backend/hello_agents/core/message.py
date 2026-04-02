@@ -13,23 +13,36 @@ class Message(BaseModel):
     role: MessageRole
     timestamp: datetime = None
     metadata: Optional[Dict[str, Any]] = None
+    tool_calls: Optional[list] = None
+    tool_name: Optional[str] = None
+    tool_call_id: Optional[str] = None
 
     def __init__(self, content: str, role: MessageRole, **kwargs):
         super().__init__(
             content=content,
             role=role,
             timestamp=kwargs.get('timestamp', datetime.now()),
-            metadata=kwargs.get('metadata', {})
+            metadata=kwargs.get('metadata', {}),
+            tool_calls=kwargs.get('tool_calls'),
+            tool_name=kwargs.get('tool_name'),
+            tool_call_id=kwargs.get('tool_call_id'),
         )
 
     def to_dict(self) -> Dict[str, Any]:
         """转换为字典格式（OpenAI API格式）"""
-        return {
+        result = {
             "role": self.role,
             "content": self.content,
             "timestamp": self.timestamp.isoformat() if self.timestamp else None,
             "metadata": self.metadata
         }
+        if self.tool_calls:
+            result["tool_calls"] = self.tool_calls
+        if self.tool_name:
+            result["tool_name"] = self.tool_name
+        if self.tool_call_id:
+            result["tool_call_id"] = self.tool_call_id
+        return result
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Message":
@@ -42,7 +55,10 @@ class Message(BaseModel):
             content=data["content"],
             role=data["role"],
             timestamp=timestamp,
-            metadata=data.get("metadata")
+            metadata=data.get("metadata"),
+            tool_calls=data.get("tool_calls"),
+            tool_name=data.get("tool_name"),
+            tool_call_id=data.get("tool_call_id"),
         )
 
     def to_text(self) -> str:

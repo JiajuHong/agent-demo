@@ -55,7 +55,7 @@ class HelloAgentsLLM:
         self.timeout = timeout or int(os.getenv("LLM_TIMEOUT", "60"))
 
         self.temperature = temperature
-        _env_max_tokens = os.getenv("max_tokens")
+        _env_max_tokens = os.getenv("MAX_TOKENS")
         self.max_tokens = int(_env_max_tokens) if _env_max_tokens else max_tokens
         self.kwargs = kwargs
 

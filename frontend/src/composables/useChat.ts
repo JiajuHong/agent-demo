@@ -279,8 +279,8 @@ export function useChat() {
         }>(
           `${API_BASE}/api/v1/sessions/${id}/history`,
         )
-        const rawMessages = data.history
-        setSessionMessages(id, rawMessages.map(m => ({
+        const rawMessages = data.history || []
+        const mappedMessages = rawMessages.map(m => ({
           id: genId(),
           role: m.role as Message['role'],
           content: m.content,
@@ -291,8 +291,11 @@ export function useChat() {
               ? m.metadata.arguments
               : JSON.stringify(m.metadata.arguments),
           } : undefined,
-        })))
-      } catch { /* ignore */ }
+        }))
+        setSessionMessages(id, mappedMessages)
+      } catch (err) {
+        console.error('Failed to load session history:', err)
+      }
     }
 
     loadedHistorySessionIds.value = {

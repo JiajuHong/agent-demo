@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- 
+        Separate launch file for testing publisher and subscriber separately
+        Comment out the node you don't want to launch
+    -->
+    
+    <!-- Uncomment to launch publisher only -->
+    <node name="demo_publisher" 
+          pkg="ros_demo_package" 
+          type="publisher_node" 
+          output="screen" />
+    
+    <!-- Uncomment to launch subscriber only -->
+    <!--
+    <node name="demo_subscriber" 
+          pkg="ros_demo_package" 
+          type="subscriber_node" 
+          output="screen" />
+    -->
+    
+</launch>

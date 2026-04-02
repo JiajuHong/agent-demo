@@ -135,10 +135,22 @@ function toggleThinking() {
 }
 
 const softwareFactory = ref(false)
+const sidebarCollapsed = ref(false)
 
 function toggleSoftwareFactory() {
   softwareFactory.value = !softwareFactory.value
   console.log('[softwareFactory]', softwareFactory.value)
+
+  // 侧边栏交互逻辑：打开软件工厂时折叠左侧侧边栏，关闭时展开
+  if (softwareFactory.value) {
+    sidebarCollapsed.value = true
+  } else {
+    sidebarCollapsed.value = false
+  }
+}
+
+function onSidebarCollapsedUpdate(value: boolean) {
+  sidebarCollapsed.value = value
 }
 
 // ─── Derived ─────────────────────────────────────────────────
@@ -146,7 +158,7 @@ const chatTitle   = computed(() => currentSession.value?.title ?? '新对话')
 const hasMessages = computed(() => messages.value.length > 0)
 const lastMsgId   = computed(() => messages.value[messages.value.length - 1]?.id)
 
-const softwareFactoryWidth = ref(600)
+const softwareFactoryWidth = ref(1200)
 const isDragging = ref(false)
 
 function startDrag(event: MouseEvent) {
@@ -162,7 +174,7 @@ function onDrag(event: MouseEvent) {
   const rect = container.getBoundingClientRect()
   // 计算软件工厂面板的宽度（从右侧边缘到拖拽位置）
   const newWidth = rect.right - event.clientX
-  softwareFactoryWidth.value = Math.min(Math.max(newWidth, 400), 900)
+  softwareFactoryWidth.value = Math.min(Math.max(newWidth, 600), 1600)
 }
 
 function stopDrag() {
@@ -181,11 +193,13 @@ function stopDrag() {
       :current-session-id="currentSessionId"
       :is-open="sidebarOpen || !isMobile"
       :is-dark="isDark"
+      :collapsed="sidebarCollapsed"
       @new-chat="newChat"
       @select-session="onSelectSession"
       @rename-session="onRenameSession"
       @delete-session="onDeleteSession"
       @close="closeSidebar"
+      @update:collapsed="onSidebarCollapsedUpdate"
     />
 
     <!-- Main content -->

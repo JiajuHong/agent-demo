@@ -1,15 +1,25 @@
 <script setup lang="ts">
+import { onMounted, nextTick, watch, ref } from 'vue'
 import MarkdownIt from 'markdown-it'
 import hljs from 'highlight.js'
 import katex from 'katex'
+import mermaid from 'mermaid'
 import 'katex/dist/katex.min.css'
 import 'highlight.js/styles/github-dark.css'
 import type { Message } from '../types'
+
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'default',
+  securityLevel: 'loose',
+})
 
 const props = defineProps<{
   message: Message
   isStreaming: boolean
 }>()
+
+const renderedHtml = ref('')
 
 const md = new MarkdownIt({
   html: false,
@@ -70,11 +80,13 @@ function renderKatex(expr: string, displayMode: boolean): string {
   })
 }
 
-function renderMarkdown(content: string): string {
+async function renderMarkdown(content: string): Promise<string> {
   const mathPlaceholders = new Map<string, string>()
   const codePlaceholders = new Map<string, string>()
+  const mermaidPlaceholders = new Map<string, string>()
   let mathIndex = 0
   let codeIndex = 0
+  let mermaidIndex = 0
 
   const createMathPlaceholder = (html: string) => {
     const key = `@@MATHPH_${mathIndex++}@@`
@@ -88,7 +100,18 @@ function renderMarkdown(content: string): string {
     return key
   }
 
-  const codeProtected = content
+  const createMermaidPlaceholder = (code: string) => {
+    const key = `@@MERMAIDPH_${mermaidIndex++}@@`
+    mermaidPlaceholders.set(key, code)
+    return key
+  }
+
+  const mermaidBlockRegex = /```mermaid\n([\s\S]*?)```/g
+  let contentWithMermaidPlaceholders = content.replace(mermaidBlockRegex, (_match, code) => {
+    return createMermaidPlaceholder(code.trim())
+  })
+
+  const codeProtected = contentWithMermaidPlaceholders
     .replace(/```[\s\S]*?(?:```|$)/g, (block) => createCodePlaceholder(block))
     .replace(/`[^`\n]*`/g, (inlineCode) => createCodePlaceholder(inlineCode))
 
@@ -104,10 +127,24 @@ function renderMarkdown(content: string): string {
   }
 
   let html = md.render(markdownSource)
+
   for (const [key, value] of mathPlaceholders.entries()) {
     html = html.replaceAll(`<p>${key}</p>`, value)
     html = html.replaceAll(key, value)
   }
+
+  for (const [key, code] of mermaidPlaceholders) {
+    const id = `mermaid-${Date.now()}-${key.replace(/\D/g, '')}`
+    let svg = ''
+    try {
+      const result = await mermaid.render(id, code)
+      svg = result.svg
+    } catch {
+      svg = `<pre class="mermaid-error">Mermaid 渲染错误</pre>`
+    }
+    html = html.replaceAll(key, `<div class="mermaid">${svg}</div>`)
+  }
+
   return html
 }
 
@@ -134,6 +171,17 @@ function handleMdClick(e: MouseEvent) {
     })
   }
 }
+
+// 在 md 初始化后设置 watch
+watch(
+  () => props.message.content,
+  async (content) => {
+    if (props.message.role === 'assistant') {
+      renderedHtml.value = await renderMarkdown(content)
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
@@ -150,7 +198,7 @@ function handleMdClick(e: MouseEvent) {
         >
           <div
             class="md-body"
-            v-html="renderMarkdown(message.content)"
+            v-html="renderedHtml"
             @click="handleMdClick"
           />
         </div>
@@ -250,5 +298,25 @@ function handleMdClick(e: MouseEvent) {
   color: var(--streaming-color, #9ca3af);
   font-style: italic;
   font-size: 13px;
+}
+
+.md-body :deep(.mermaid) {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
+  overflow-x: auto;
+}
+
+.md-body :deep(.mermaid svg) {
+  max-width: 100%;
+  height: auto;
+}
+
+.md-body :deep(.mermaid-error) {
+  color: #ef4444;
+  background: #fef2f2;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 12px;
 }
 </style>

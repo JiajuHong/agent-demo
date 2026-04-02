@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { nextTick, ref } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 import { MessageSquarePlus, PanelLeftClose, PanelLeftOpen, Sparkles, PenLine, Trash2 } from 'lucide-vue-next'
 import type { Session } from '../types'
 
-defineProps<{
+const props = defineProps<{
   sessions: Session[]
   currentSessionId: string | null
   isOpen: boolean
   isDark: boolean
+  collapsed?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -16,10 +17,24 @@ const emit = defineEmits<{
   'rename-session': [payload: { id: string; title: string }]
   'delete-session': [id: string]
   'close': []
+  'update:collapsed': [value: boolean]
 }>()
 
 const isCollapsed = ref(false)
 const editingId = ref<string | null>(null)
+
+// 监听外部 collapsed prop，同步侧边栏折叠状态
+watch(() => props.collapsed, (newVal) => {
+  if (newVal !== undefined) {
+    isCollapsed.value = newVal
+  }
+}, { immediate: true })
+
+// 监听内部 isCollapsed 变化，同步回父组件
+watch(isCollapsed, (newVal) => {
+  emit('update:collapsed', newVal)
+})
+
 const editTitle = ref('')
 const editInputRef = ref<HTMLInputElement[]>([])
 

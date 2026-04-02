@@ -1,8 +1,15 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { FileText, Code, Eye, ChevronDown, Save } from 'lucide-vue-next'
+import { FileText, Code, Eye, EyeOff, ChevronDown, Save, Download } from 'lucide-vue-next'
 import MarkdownIt from 'markdown-it'
+import mermaid from 'mermaid'
 import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
+
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'default',
+  securityLevel: 'loose',
+})
 
 const props = defineProps<{
   sessionId: string | null
@@ -19,7 +26,8 @@ const designContent = ref('')
 const codeTree = ref<Array<{ path: string; type: string }>>([])
 const selectedFile = ref<string | null>(null)
 const fileContent = ref('')
-const showPreview = ref(true)
+const showPreview = ref(false)
+const previewOnly = ref(false)
 const editedContent = ref('')
 const previewRef = ref<HTMLDivElement | null>(null)
 const selectedFileIndex = ref(-1)
@@ -131,19 +139,47 @@ const currentContent = computed({
   },
 })
 
+const previewContent = ref('')
+
 const displayContent = computed(() => {
   return editedContent.value || currentContent.value
 })
 
-const renderedContent = computed(() => {
-  return md.render(displayContent.value)
-})
+async function renderWithMermaid(content: string): Promise<string> {
+  const mermaidPlaceholders = new Map<string, string>()
+  let mermaidIndex = 0
 
-watch(displayContent, (content) => {
-  if (editedContent.value !== content) {
-    editedContent.value = content
+  const createMermaidPlaceholder = (code: string) => {
+    const key = `@@MERMAIDPH_${mermaidIndex++}@@`
+    mermaidPlaceholders.set(key, code)
+    return key
   }
-})
+
+  const mermaidBlockRegex = /```mermaid\n([\s\S]*?)```/g
+  let contentWithMermaid = content.replace(mermaidBlockRegex, (_match, code) => {
+    return createMermaidPlaceholder(code.trim())
+  })
+
+  let html = md.render(contentWithMermaid)
+
+  for (const [key, code] of mermaidPlaceholders) {
+    const id = `mermaid-preview-${Date.now()}-${key.replace(/\D/g, '')}`
+    let svg = ''
+    try {
+      const result = await mermaid.render(id, code)
+      svg = result.svg
+    } catch {
+      svg = `<pre class="mermaid-error">Mermaid 渲染错误</pre>`
+    }
+    html = html.replaceAll(key, `<div class="mermaid">${svg}</div>`)
+  }
+
+  return html
+}
+
+watch(displayContent, async (content) => {
+  previewContent.value = await renderWithMermaid(content)
+}, { immediate: true })
 
 watch(fileContent, (content) => {
   if (content && editedContent.value !== content) {
@@ -279,6 +315,28 @@ async function saveDoc() {
   }
 }
 
+async function downloadZip() {
+  if (!props.sessionId) return
+  try {
+    const res = await fetch(`${apiBase}/api/v1/files/${props.sessionId}/download`)
+    if (!res.ok) {
+      console.error('Failed to download:', res.status, res.statusText)
+      return
+    }
+    const blob = await res.blob()
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${props.sessionId}.zip`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    window.URL.revokeObjectURL(url)
+  } catch (e) {
+    console.error('Failed to download zip:', e)
+  }
+}
+
 function handleEditorMount(editor: any) {
   editorInstance.value = editor
   editor.onDidScrollChange(() => {
@@ -388,21 +446,27 @@ watch(() => props.sessionId, (id) => {
         <div v-else class="code-container">
           <!-- 文件选择器 -->
           <div class="file-selector">
-            <button class="file-selector-btn">
-              <span class="file-name">{{ selectedFile || '选择文件...' }}</span>
-              <ChevronDown class="chevron" />
-            </button>
-            <div class="file-dropdown">
-              <div
-                v-for="(item, index) in filteredCodeTree"
-                :key="item.path"
-                :class="['file-option', { selected: selectedFileIndex === index }]"
-                @click="selectFile(index)"
-              >
-                {{ item.path.split('/').pop() }}
-                <span class="file-path-hint">{{ item.path }}</span>
+            <div class="selector-left">
+              <button class="file-selector-btn">
+                <span class="file-name">{{ selectedFile || '选择文件...' }}</span>
+                <ChevronDown class="chevron" />
+              </button>
+              <div class="file-dropdown">
+                <div
+                  v-for="(item, index) in filteredCodeTree"
+                  :key="item.path"
+                  :class="['file-option', { selected: selectedFileIndex === index }]"
+                  @click="selectFile(index)"
+                >
+                  {{ item.path.split('/').pop() }}
+                  <span class="file-path-hint">{{ item.path }}</span>
+                </div>
               </div>
             </div>
+            <button class="tool-btn" @click="downloadZip">
+              <Download class="btn-icon" />
+              下载
+            </button>
           </div>
 
           <!-- 文件内容编辑器 -->
@@ -458,16 +522,21 @@ watch(() => props.sessionId, (id) => {
                 <Save class="btn-icon" />
                 保存
               </button>
+              <button class="tool-btn" @click="previewOnly = !previewOnly; if(previewOnly) showPreview = true">
+                <EyeOff v-if="previewOnly" class="btn-icon" />
+                <Eye v-else class="btn-icon" />
+                {{ previewOnly ? '取消仅预览' : '仅预览' }}
+              </button>
               <button class="tool-btn" @click="showPreview = !showPreview">
                 <Eye class="btn-icon" />
-                {{ showPreview ? '隐藏预览' : '显示预览' }}
+                {{ showPreview ? '隐藏分栏' : '显示分栏' }}
               </button>
             </div>
           </div>
 
           <!-- 编辑器 + 预览 -->
-          <div class="editor-content" :class="{ 'with-preview': showPreview }">
-            <div class="editor-pane">
+          <div class="editor-content" :class="{ 'with-preview': showPreview && !previewOnly, 'preview-only': previewOnly }">
+            <div v-if="!previewOnly" class="editor-pane">
               <VueMonacoEditor
                 :key="activeTab"
                 v-model:value="editedContent"
@@ -477,8 +546,8 @@ watch(() => props.sessionId, (id) => {
                 @mount="handleEditorMount"
               />
             </div>
-            <div v-if="showPreview" ref="previewRef" class="preview-pane" @scroll="onPreviewScroll">
-              <div class="markdown-body" v-html="renderedContent"></div>
+            <div v-if="showPreview || previewOnly" ref="previewRef" class="preview-pane" :class="{ 'full-width': previewOnly }" @scroll="onPreviewScroll">
+              <div class="markdown-body" v-html="previewContent"></div>
             </div>
           </div>
         </div>
@@ -712,6 +781,15 @@ watch(() => props.sessionId, (id) => {
   background: #fafafa;
   border-bottom: 1px solid #e5e7eb;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.selector-left {
+  flex: 1;
+  min-width: 0;
+  position: relative;
 }
 
 .dark .file-selector {
@@ -881,6 +959,10 @@ watch(() => props.sessionId, (id) => {
   flex: 1;
 }
 
+.preview-pane.full-width {
+  width: 100%;
+}
+
 .dark .preview-pane {
   background: #1a1a2e;
 }
@@ -1008,5 +1090,36 @@ watch(() => props.sessionId, (id) => {
   justify-content: center;
   height: 100%;
   color: #9ca3af;
+}
+
+.markdown-body :deep(.mermaid) {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
+  overflow-x: auto;
+  background: #fff;
+  border-radius: 8px;
+}
+
+.dark .markdown-body :deep(.mermaid) {
+  background: #1f2937;
+}
+
+.markdown-body :deep(.mermaid svg) {
+  max-width: 100%;
+  height: auto;
+}
+
+.markdown-body :deep(.mermaid-error) {
+  color: #ef4444;
+  background: #fef2f2;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.dark .markdown-body :deep(.mermaid-error) {
+  background: #7f1d1d;
+  color: #fca5a5;
 }
 </style>

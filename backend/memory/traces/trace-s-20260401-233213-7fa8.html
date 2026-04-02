@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Trace: s-20260401-233213-7fa8</title>
+    <style>
+        body {
+            font-family: 'Consolas', 'Monaco', monospace;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            margin: 0;
+        }
+        .header {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0 0 10px 0;
+            color: #4af626;
+        }
+        .stats-panel {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-item {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 3px solid #4af626;
+        }
+        .stat-label {
+            display: block;
+            color: #888;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        .stat-value {
+            display: block;
+            color: #e0e0e0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .tool-stats {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .tool-stats th, .tool-stats td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+        .tool-stats th {
+            color: #4af626;
+        }
+        .error-list {
+            list-style: none;
+            padding: 0;
+        }
+        .error-list li {
+            background: #331111;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border-left: 3px solid #ff4444;
+        }
+        .events-container {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .event {
+            border: 1px solid #333;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+            background: #1a1a1a;
+        }
+        .event-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .step {
+            color: #888;
+            font-size: 12px;
+        }
+        .timestamp {
+            color: #666;
+            font-size: 11px;
+        }
+        .event-type {
+            color: #4af626;
+            font-weight: bold;
+        }
+        .expandable {
+            cursor: pointer;
+            color: #4af626;
+            user-select: none;
+        }
+        .expandable:hover {
+            color: #6fff48;
+        }
+        .details {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            background: #0d0d0d;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .details pre {
+            margin: 0;
+            color: #e0e0e0;
+        }
+        .tool-call {
+            border-left: 3px solid #4af626;
+        }
+        .tool-result {
+            border-left: 3px solid #ffd700;
+        }
+        .error {
+            border-left: 3px solid #ff4444;
+            background: #2a1a1a;
+        }
+        .model-output {
+            border-left: 3px solid #00bfff;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔍 Trace Session: s-20260401-233213-7fa8</h1>
+        <p>生成时间: 2026-04-01 23:32:13</p>
+    </div>
+
+    <div class="events-container">
+        <h2>📋 事件列表</h2>
+
+        <div class="event">
+            <div class="event-header">
+                <span class="step">Step -</span>
+                <span class="timestamp">2026-04-01T23:32:13.612157</span>
+                <span class="event-type">session_start</span>
+                <span class="expandable" onclick="toggleDetails('details-1')">[▼ 详情]</span>
+            </div>
+            <div id="details-1" class="details">
+                <pre>{
+  "agent_name": "codegen-agent",
+  "agent_type": "CodeGenAgent",
+  "input_text": "继续"
+}</pre>
+            </div>
+        </div>
+
+        <div class="event">
+            <div class="event-header">
+                <span class="step">Step 1</span>
+                <span class="timestamp">2026-04-01T23:32:13.647275</span>
+                <span class="event-type">step_start</span>
+                <span class="expandable" onclick="toggleDetails('details-2')">[▼ 详情]</span>
+            </div>
+            <div id="details-2" class="details">
+                <pre>{
+  "step": 1,
+  "max_steps": 100,
+  "messages_count": 11
+}</pre>
+            </div>
+        </div>
+
+        <div class="event model-output">
+            <div class="event-header">
+                <span class="step">Step 1</span>
+                <span class="timestamp">2026-04-01T23:32:18.626498</span>
+                <span class="event-type">model_output</span>
+                <span class="expandable" onclick="toggleDetails('details-3')">[▼ 详情]</span>
+            </div>
+            <div id="details-3" class="details">
+                <pre>{
+  "content": "好的，现在进入第二阶段：软件设计。首先读取SRS文档，然后生成设计文档。",
+  "tool_calls_count": 1,
+  "tool_calls": [
+    {
+      "name": "Read",
+      "arguments": "{\"path\": \"SRS.md\"}"
+    }
+  ]
+}</pre>
+            </div>
+        </div>
+
+        <div class="event tool-call">
+            <div class="event-header">
+                <span class="step">Step 1</span>
+                <span class="timestamp">2026-04-01T23:32:18.630504</span>
+                <span class="event-type">tool_call</span>
+                <span class="expandable" onclick="toggleDetails('details-4')">[▼ 详情]</span>
+            </div>
+            <div id="details-4" class="details">
+                <pre>{
+  "tool_name": "Read",
+  "tool_call_id": "call_00_prkUzSk8ijqyw6lIF01Imu7a",
+  "arguments": "{\"path\": \"SRS.md\"}"
+}</pre>
+            </div>
+        </div>
+
+        <div class="event tool-result">
+            <div class="event-header">
+                <span class="step">Step 1</span>
+                <span class="timestamp">2026-04-01T23:32:18.647046</span>
+                <span class="event-type">tool_result</span>
+                <span class="expandable" onclick="toggleDetails('details-5')">[▼ 详情]</span>
+            </div>
+            <div id="details-5" class="details">
+                <pre>{
+  "tool_name": "Read",
+  "tool_call_id": "call_00_prkUzSk8ijqyw6lIF01Imu7a",
+  "result": "# 需求规格说明书\n\n## 1. 项目概述\n\n### 1.1 项目名称\n单词记忆助手（WordMaster）\n\n### 1.2 项目简介\n一个基于SpringBoot+UniApp的跨平台背单词小程序，提供多种学习模式、智能复习算法和丰富的单词资源，帮助用户高效记忆英语单词。\n\n### 1.3 目标用户\n- 学生群体（备考四六级、考研、托福、雅思）\n- 职场人士（提升英语能力）\n- 英语爱好者\n- 所有需要记忆英语单词的用户\n\n## 2. 功能需求\n\n### 2.1 核心功能\n\n#### 功能点 1：用户管理\n- 描述：用户注册、登录、个人信息管理\n- 优先级：高\n- 前置条件：无\n- 操作流程：\n  1. 用户打开小程序\n  2. 选择注册/登录\n  3. 填写基本信息（用户名、密码）\n  4. 进入主界面\n- 预期结果：用户成功注册/登录，系统记录用户信息\n\n#### 功能点 2：单词学习\n- 描述：多种模式学习单词\n- 优先级：高\n- 前置条件：用户已登录\n- 操作流程：\n  1. 用户选择学习模式（卡片学习、选择题测试、拼写测试）\n  2. 系统展示单词及信息（英文、音标、中文释义、例句）\n  3. 用户点击发音按钮可听单词读音\n  4. 用户标记单词掌握程度\n- 预期结果：用户完成单词学习，系统记录学习进度\n\n#### 功能点 3：智能复习\n- 描述：基于遗忘曲线的智能复习系统\n- 优先级：高\n- 前置条件：用户有学习记录\n- 操作流程：\n  1. 系统根据用户学习历史和遗忘曲线算法推荐复习单词\n  2. 用户进行复习测试\n  3. 系统更新单词的记忆强度\n- 预期结果：用户有效复习薄弱单词，提高记忆效率\n\n#### 功能点 4：词库管理\n- 描述：管理不同类别的单词词库\n- 优先级：中\n- 前置条件：用户已登录\n- 操作流程：\n  1. 用户查看可用词库列表（四级、六级、考研、托福等）\n  2. 用户选择词库开始学习\n  3. 用户可查看词库学习进度\n- 预期结果：用户选择适合的词库进行学习\n\n#### 功能点 5：学习统计\n- 描述：查看学习数据统计\n- 优先级：中\n- 前置条件：用户有学习记录\n- 操作流程：\n  1. 用户进入统计页面\n  2. 查看今日学习数据（学习单词数、复习单词数）\n  3. 查看历史学习趋势图\n  4. 查看掌握程度分布\n- 预期结果：用户了解自己的学习进度和效果\n\n#### 功能点 6：单词搜索\n- 描述：搜索单词详细信息\n- 优先级：低\n- 前置条件：无\n- 操作流程：\n  1. 用户在搜索框输入单词\n  2. 系统调用网易接口获取单词详细信息\n  3. 展示单词释义、例句、发音等\n- 预期结果：用户获取单词的详细信息\n\n### 2.2 用户交互\n\n#### 用户角色\n| 角色 | 描述 | 权限 |\n|------|------|------|\n| 普通用户 | 注册用户 | 单词学习、复习、查看统计、管理词库 |\n\n#### 界面原型（文字描述）\n1. **登录/注册页**：简洁的表单页面，包含用户名、密码输入框\n2. **主界面**：底部导航栏（学习、复习、词库、统计、我的）\n3. **学习页面**：单词卡片展示区，包含单词、音标、释义、例句、发音按钮\n4. **复习页面**：复习任务列表，按遗忘曲线排序\n5. **词库页面**：词库分类列表，显示学习进度\n6. **统计页面**：图表展示学习数据，包括日/周/月统计\n7. **个人中心**：用户信息、设置、退出登录\n\n## 3. 数据需求\n\n### 3.1 数据实体\n\n| 实体名称 | 说明 | 主要属性 |\n|----------|------|----------|\n| 用户 | 系统用户 | id, username, password, nickname, avatar, created_time |\n| 单词 | 单词基本信息 | id, word, phonetic, definition, example, difficulty |\n| 词库 | 单词分类集合 | id, name, description, total_words, category |\n| 学习记录 | 用户学习单词记录 | id, user_id, word_id, mastery_level, last_review_time, next_review_time, review_count |\n| 学习统计 | 用户学习统计数据 | id, user_id, date, learned_count, reviewed_count, total_time |\n\n### 3.2 数据操作\n\n| 操作 | 输入 | 输出 | 约束 |\n|------|------|------|------|\n| 用户注册 | username, password | 用户信息 | 用户名不能重复 |\n| 用户登录 | username, password | 登录token | 密码需加密验证 |\n| 获取单词 | word_id | 单词详细信息 | 无 |\n| 记录学习 | user_id, word_id, mastery | 学习记录ID | 用户必须存在 |\n| 获取复习列表 | user_id | 需要复习的单词列表 | 按遗忘曲线算法排序 |\n| 获取统计 | user_id, date_range | 统计数据 | 支持按日/周/月统计 |\n\n## 4. 非功能需求\n\n### 4.1 性能需求\n- 响应时间：API响应时间 < 200ms\n- 并发能力：支持1000并发用户\n- 吞吐量：QPS > 100\n\n### 4.2 安全需求\n- 认证方式：简单Token认证\n- 权限控制：用户只能访问自己的数据\n- 数据保护：密码加密存储（BCrypt）\n\n### 4.3 部署需求\n- 运行环境：Docker容器化部署\n- 依赖服务：MySQL 8.0+、Redis缓存\n- 外部接口：网易有道词典API\n\n## 5. 验收标准\n\n### 5.1 功能验收\n- [ ] 用户可正常注册登录\n- [ ] 单词学习功能完整可用\n- [ ] 智能复习算法正确工作\n- [ ] 词库管理功能正常\n- [ ] 学习统计数据准确\n- [ ] 单词搜索功能正常\n\n### 5.2 质量标准\n- API响应时间 < 200ms\n- 支持1000并发用户\n- 代码可通过单元测试\n- 数据库设计符合3NF规范",
+  "is_builtin": false
+}</pre>
+            </div>
+        </div>
+
+        <div class="event">
+            <div class="event-header">
+                <span class="step">Step 1</span>
+                <span class="timestamp">2026-04-01T23:32:18.662300</span>
+                <span class="event-type">step_finish</span>
+                <span class="expandable" onclick="toggleDetails('details-6')">[▼ 详情]</span>
+            </div>
+            <div id="details-6" class="details">
+                <pre>{
+  "step": 1,
+  "tool_results_count": 1
+}</pre>
+            </div>
+        </div>
+
+        <div class="event">
+            <div class="event-header">
+                <span class="step">Step 2</span>
+                <span class="timestamp">2026-04-01T23:32:18.678715</span>
+                <span class="event-type">step_start</span>
+                <span class="expandable" onclick="toggleDetails('details-7')">[▼ 详情]</span>
+            </div>
+            <div id="details-7" class="details">
+                <pre>{
+  "step": 2,
+  "max_steps": 100,
+  "messages_count": 13
+}</pre>
+            </div>
+        </div>
+
+        <div class="event model-output">
+            <div class="event-header">
+                <span class="step">Step 2</span>
+                <span class="timestamp">2026-04-01T23:36:33.231143</span>
+                <span class="event-type">model_output</span>
+                <span class="expandable" onclick="toggleDetails('details-8')">[▼ 详情]</span>
+            </div>
+            <div id="details-8" class="details">
+                <pre>{
+  "content": "现在基于SRS文档生成软件设计文档：",
+  "tool_calls_count": 1,
+  "tool_calls": [
+    {
+      "name": "Write",
+      "arguments": "{\"path\": \"DESIGN.md\", \"content\": \"# 软件设计文档\\n\\n## 1. 系统架构\\n\\n### 1.1 整体架构\\n\\n**架构说明**：系统采用前后端分离架构，后端使用SpringBoot提供RESTful API，前端使用UniApp开发跨平台小程序。系统包含用户管理、单词学习、智能复习、词库管理、学习统计等核心模块。\\n\\n**技术栈**：\\n- 前端：UniApp + Vue3 + uView UI\\n- 后端：SpringBoot 3.x + MyBatis Plus + Spring Security\\n- 数据库：MySQL 8.0\\n- 缓存：Redis 7.x\\n- 外部接口：网易有道词典API\\n\\n**架构图**：\\n```mermaid\\nflowchart TD\\n    A[用户] --> B[UniApp小程序]\\n    B --> C[Nginx网关]\\n    C --> D[SpringBoot后端]\\n    D --> E[(MySQL数据库)]\\n    D --> F[(Redis缓存)]\\n    D --> G[网易有道API]\\n    \\n    subgraph \\\"后端服务\\\"\\n        D1[用户模块]\\n        D2[单词模块]\\n        D3[学习模块]\\n        D4[统计模块]\\n        D5[词库模块]\\n    end\\n    \\n    D --> D1\\n    D --> D2\\n    D --> D3\\n    D --> D4\\n    D --> D5\\n```\\n\\n### 1.2 模块划分\\n\\n| 模块名称 | 职责 | 依赖模块 |\\n|---------|------|----------|\\n| 用户模块 | 用户注册、登录、个人信息管理 | 无 |\\n| 单词模块 | 单词信息管理、单词搜索 | 外部API模块 |\\n| 学习模块 | 单词学习、智能复习、学习记录 | 用户模块、单词模块 |\\n| 词库模块 | 词库管理、词库进度跟踪 | 单词模块、学习模块 |\\n| 统计模块 | 学习数据统计、报表生成 | 学习模块 |\\n| 外部API模块 | 调用网易有道词典API | 无 |\\n\\n### 1.3 项目目录结构\\n\\n```\\nwordmaster-backend/\\n├── src/main/java/com/wordmaster/\\n│   ├── WordMasterApplication.java\\n│   ├── config/\\n│   │   ├── SecurityConfig.java\\n│   │   ├── RedisConfig.java\\n│   │   └── WebConfig.java\\n│   ├── controller/\\n│   │   ├── AuthController.java\\n│   │   ├── UserController.java\\n│   │   ├── WordController.java\\n│   │   ├── StudyController.java\\n│   │   ├── DictionaryController.java\\n│   │   └── StatController.java\\n│   ├── service/\\n│   │   ├── impl/\\n│   │   │   ├── UserServiceImpl.java\\n│   │   │   ├── WordServiceImpl.java\\n│   │   │   ├── StudyServiceImpl.java\\n│   │   │   ├── DictionaryServiceImpl.java\\n│   │   │   └── StatServiceImpl.java\\n│   │   ├── UserService.java\\n│   │   ├── WordService.java\\n│   │   ├── StudyService.java\\n│   │   ├── DictionaryService.java\\n│   │   └── StatService.java\\n│   ├── mapper/\\n│   │   ├── UserMapper.java\\n│   │   ├── WordMapper.java\\n│   │   ├── StudyRecordMapper.java\\n│   │   ├── DictionaryMapper.java\\n│   │   └── StatMapper.java\\n│   ├── entity/\\n│   │   ├── User.java\\n│   │   ├── Word.java\\n│   │   ├── StudyRecord.java\\n│   │   ├── Dictionary.java\\n│   │   └── StatRecord.java\\n│   ├── dto/\\n│   │   ├── request/\\n│   │   │   ├── LoginRequest.java\\n│   │   │   ├── RegisterRequest.java\\n│   │   │   └── StudyRequest.java\\n│   │   └── response/\\n│   │       ├── ApiResponse.java\\n│   │       ├── UserResponse.java\\n│   │       └── WordResponse.java\\n│   ├── util/\\n│   │   ├── JwtUtil.java\\n│   │   ├── RedisUtil.java\\n│   │   ├── ForgettingCurveUtil.java\\n│   │   └── NeteaseApiClient.java\\n│   └── exception/\\n│       ├── GlobalExceptionHandler.java\\n│       └── BusinessException.java\\n├── src/main/resources/\\n│   ├── application.yml\\n│   ├── mapper/\\n│   └── static/\\n├── src/test/\\n├── Dockerfile\\n├── docker-compose.yml\\n├── pom.xml\\n└── README.md\\n\\nwordmaster-frontend/\\n├── pages/\\n│   ├── login/\\n│   │   └── login.vue\\n│   ├── index/\\n│   │   └── index.vue\\n│   ├── study/\\n│   │   └── study.vue\\n│   ├── review/\\n│   │   └── review.vue\\n│   ├── dictionary/\\n│   │   └── dictionary.vue\\n│   ├── statistics/\\n│   │   └── statistics.vue\\n│   └── profile/\\n│       └── profile.vue\\n├── components/\\n│   ├── word-card.vue\\n│   ├── study-progress.vue\\n│   └── stat-chart.vue\\n├── store/\\n│   └── user.js\\n├── api/\\n│   ├── request.js\\n│   └── api.js\\n├── utils/\\n│   ├── auth.js\\n│   └── common.js\\n├── static/\\n├── manifest.json\\n├── pages.json\\n├── App.vue\\n├── main.js\\n└── uni.scss\\n```\\n\\n## 2. API 设计\\n\\n### 2.1 接口规范\\n\\n**Base URL**: `/api/v1`\\n\\n**通用规范**：\\n- 认证方式：Bearer ***（JWT）\\n- 通用请求头：`Content-Type: application/json`\\n- 通用响应格式：\\n\\n```json\\n{\\n  \\\"code\\\": 0,\\n  \\\"message\\\": \\\"success\\\",\\n  \\\"data\\\": {},\\n  \\\"timestamp\\\": 1630000000000\\n}\\n```\\n\\n**错误码定义**：\\n- 0: 成功\\n- 1000-1999: 用户相关错误\\n- 2000-2999: 单词相关错误\\n- 3000-3999: 学习相关错误\\n- 4000-4999: 系统错误\\n\\n### 2.2 接口列表\\n\\n#### 2.2.1 用户认证模块\\n\\n**接口名称**：POST `/auth/register`\\n\\n请求参数：\\n\\n| 参数名 | 类型 | 必填 | 说明 |\\n|--------|------|------|------|\\n| username | string | 是 | 用户名 |\\n| password | string | 是 | 密码 |\\n| nickname | string | 否 | 昵称 |\\n\\n请求示例：\\n```json\\n{\\n  \\\"username\\\": \\\"testuser\\\",\\n  \\\"password\\\": \\\"password123\\\",\\n  \\\"nickname\\\": \\\"测试用户\\\"\\n}\\n```\\n\\n响应示例：\\n```json\\n{\\n  \\\"code\\\": 0,\\n  \\\"message\\\": \\\"注册成功\\\",\\n  \\\"data\\\": {\\n    \\\"id\\\": 1,\\n    \\\"username\\\": \\\"testuser\\\",\\n    \\\"nickname\\\": \\\"测试用户\\\",\\n    \\\"token\\\": \\\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\\\"\\n  }\\n}\\n```\\n\\n**接口名称**：POST `/auth/login`\\n\\n请求参数：\\n\\n| 参数名 | 类型 | 必填 | 说明 |\\n|--------|------|------|------|\\n| username | string | 是 | 用户名 |\\n| password | string | 是 | 密码 |\\n\\n响应示例：\\n```json\\n{\\n  \\\"code\\\": 0,\\n  \\\"message\\\": \\\"登录成功\\\",\\n  \\\"data\\\": {\\n    \\\"id\\\": 1,\\n    \\\"username\\\": \\\"testuser\\\",\\n    \\\"nickname\\\": \\\"测试用户\\\",\\n    \\\"token\\\": \\\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\\\"\\n  }\\n}\\n```\\n\\n#### 2.2.2 单词模块\\n\\n**接口名称**：GET `/words/{id}`\\n\\n请求参数：\\n\\n| 参数名 | 类型 | 必填 | 说明 |\\n|--------|------|------|------|\\n| id | int | 是 | 单词ID |\\n\\n响应示例：\\n```json\\n{\\n  \\\"code\\\": 0,\\n  \\\"message\\\": \\\"success\\\",\\n  \\\"data\\\": {\\n    \\\"id\\\": 1,\\n    \\\"word\\\": \\\"abandon\\\",\\n    \\\"phonetic\\\": \\\"/əˈbændən/\\\",\\n    \\\"definition\\\": \\\"v. 放弃，抛弃\\\",\\n    \\\"example\\\": \\\"He abandoned his car and continued on foot.\\\",\\n    \\\"difficulty\\\": 3\\n  }\\n}\\n```\\n\\n**接口名称**：GET `/words/search`\\n\\n请求参数：\\n\\n| 参数名 | 类型 | 必填 | 说明 |\\n|--------|------|------|------|\\n| keyword | string | 是 | 搜索关键词 |\\n| page | int | 否 | 页码，默认1 |\\n| size | int | 否 | 每页大小，默认10 |\\n\\n#### 2.2.3 学习模块\\n\\n**接口名称**：POST `/study/learn`\\n\\n请求参数：\\n\\n| 参数名 | 类型 | 必填 | 说明 |\\n|--------|------|------|------|\\n| wordId | int | 是 | 单词ID |\\n| mastery | int | 是 | 掌握程度（1-5） |\\n\\n**接口名称**：GET `/study/review-list`\\n\\n请求参数：无（从token获取用户ID）\\n\\n响应示例：\\n```json\\n{\\n  \\\"code\\\": 0,\\n  \\\"message\\\": \\\"success\\\",\\n  \\\"data\\\": {\\n    \\\"total\\\": 15,\\n    \\\"words\\\": [\\n      {\\n        \\\"id\\\": 1,\\n        \\\"word\\\": \\\"abandon\\\",\\n        \\\"phonetic\\\": \\\"/əˈbændən/\\\",\\n        \\\"definition\\\": \\\"v. 放弃，抛弃\\\",\\n        \\\"lastReviewTime\\\": \\\"2023-10-01 10:00:00\\\",\\n        \\\"nextReviewTime\\\": \\\"2023-10-02 10:00:00\\\",\\n        \\\"reviewCount\\\": 2\\n      }\\n    ]\\n  }\\n}\\n```\\n\\n#### 2.2.4 词库模块\\n\\n**接口名称**：GET `/dictionaries`\\n\\n请求参数：无\\n\\n响应示例：\\n```json\\n{\\n  \\\"code\\\": 0,\\n  \\\"message\\\": \\\"success\\\",\\n  \\\"data\\\": [\\n    {\\n      \\\"id\\\": 1,\\n      \\\"name\\\": \\\"四级核心词汇\\\",\\n      \\\"description\\\": \\\"大学英语四级考试核心词汇\\\",\\n      \\\"totalWords\\\": 3000,\\n      \\\"learnedWords\\\": 150,\\n      \\\"progress\\\": 5.0\\n    }\\n  ]\\n}\\n```\\n\\n#### 2.2.5 统计模块\\n\\n**接口名称**：GET `/stats/daily`\\n\\n请求参数：\\n\\n| 参数名 | 类型 | 必填 | 说明 |\\n|--------|------|------|------|\\n| date | string | 否 | 日期（yyyy-MM-dd），默认今天 |\\n\\n**接口名称**：GET `/stats/trend`\\n\\n请求参数：\\n\\n| 参数名 | 类型 | 必填 | 说明 |\\n|--------|------|------|------|\\n| type | string | 是 | 统计类型（day/week/month） |\\n| days | int | 否 | 天数，默认7 |\\n\\n## 3. 数据库设计\\n\\n### 3.1 ER 图\\n\\n```mermaid\\nerDiagram\\n    USER ||--o{ STUDY_RECORD : \\\"has\\\"\\n    USER ||--o{ STAT_RECORD : \\\"generates\\\"\\n    WORD ||--o{ STUDY_RECORD : \\\"studied in\\\"\\n    DICTIONARY ||--o{ WORD : \\\"contains\\\"\\n    \\n    USER {\\n        int id PK\\n        string username UK\\n        string password\\n        string nickname\\n        string avatar\\n        datetime created_time\\n    }\\n    \\n    WORD {\\n        int id PK\\n        string word UK\\n        string phonetic\\n        string definition\\n        string example\\n        int difficulty\\n        int dictionary_id FK\\n    }\\n    \\n    STUDY_RECORD {\\n        int id PK\\n        int user_id FK\\n        int word_id FK\\n        int mastery_level\\n        datetime last_review_time\\n        datetime next_review_time\\n        int review_count\\n    }\\n    \\n    DICTIONARY {\\n        int id PK\\n        string name\\n        string description\\n        string category\\n        int total_words\\n    }\\n    \\n    STAT_RECORD {\\n        int id PK\\n        int user_id FK\\n        date stat_date\\n        int learned_count\\n        int reviewed_count\\n        int total_time\\n    }\\n```\\n\\n### 3.2 表结构\\n\\n#### 表名：`user`\\n\\n| 字段名 | 类型 | 主键 | 索引 | 说明 |\\n|--------|------|------|------|------|\\n| id | INT | PK | AUTO_INCREMENT | 用户ID |\\n| username | VARCHAR(50) | - | UNIQUE | 用户名 |\\n| password | VARCHAR(100) | - | - | 密码（BCrypt加密） |\\n| nickname | VARCHAR(50) | - | - | 昵称 |\\n| avatar | VARCHAR(200) | - | - | 头像URL |\\n| created_time | DATETIME | - | - | 创建时间 |\\n\\nDDL：\\n```sql\\nCREATE TABLE `user` (\\n  `id` INT AUTO_INCREMENT PRIMARY KEY,\\n  `username` VARCHAR(50) NOT NULL UNIQUE,\\n  `password` VARCHAR(100) NOT NULL,\\n  `nickname` VARCHAR(50),\\n  `avatar` VARCHAR(200),\\n  `created_time` DATETIME DEFAULT CURRENT_TIMESTAMP,\\n  INDEX `idx_username` (`username`)\\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\\n```\\n\\n#### 表名：`word`\\n\\n| 字段名 | 类型 | 主键 | 索引 | 说明 |\\n|--------|------|------|------|------|\\n| id | INT | PK | AUTO_INCREMENT | 单词ID |\\n| word | VARCHAR(100) | - | UNIQUE | 单词 |\\n| phonetic | VARCHAR(100) | - | - | 音标 |\\n| definition | TEXT | - | - | 释义 |\\n| example | TEXT | - | - | 例句 |\\n| difficulty | TINYINT | - | - | 难度等级（1-5） |\\n| dictionary_id | INT | - | INDEX | 所属词库ID |\\n\\nDDL：\\n```sql\\nCREATE TABLE `word` (\\n  `id` INT AUTO_INCREMENT PRIMARY KEY,\\n  `word` VARCHAR(100) NOT NULL UNIQUE,\\n  `phonetic` VARCHAR(100),\\n  `definition` TEXT,\\n  `example` TEXT,\\n  `difficulty` TINYINT DEFAULT 3,\\n  `dictionary_id` INT,\\n  INDEX `idx_word` (`word`),\\n  INDEX `idx_dictionary` (`dictionary_id`)\\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\\n```\\n\\n#### 表名：`study_record`\\n\\n| 字段名 | 类型 | 主键 | 索引 | 说明 |\\n|--------|------|------|------|------|\\n| id | INT | PK | AUTO_INCREMENT | 记录ID |\\n| user_id | INT | - | INDEX | 用户ID |\\n| word_id | INT | - | INDEX | 单词ID |\\n| mastery_level | TINYINT | - | - | 掌握程度（1-5） |\\n| last_review_time | DATETIME | - | - | 上次复习时间 |\\n| next_review_time | DATETIME | - | - | 下次复习时间 |\\n| review_count | INT | - | - | 复习次数 |\\n| created_time | DATETIME | - | - | 创建时间 |\\n\\nDDL：\\n```sql\\nCREATE TABLE `study_record` (\\n  `id` INT AUTO_INCREMENT PRIMARY KEY,\\n  `user_id` INT NOT NULL,\\n  `word_id` INT NOT NULL,\\n  `mastery_level` TINYINT DEFAULT 1,\\n  `last_review_time` DATETIME DEFAULT CURRENT_TIMESTAMP,\\n  `next_review_time` DATETIME,\\n  `review_count` INT DEFAULT 0,\\n  `created_time` DATETIME DEFAULT CURRENT_TIMESTAMP,\\n  UNIQUE KEY `uk_user_word` (`user_id`, `word_id`),\\n  INDEX `idx_user` (`user_id`),\\n  INDEX `idx_word` (`word_id`),\\n  INDEX `idx_next_review` (`next_review_time`),\\n  FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE CASCADE,\\n  FOREIGN KEY (`word_id`) REFERENCES `word`(`id`) ON DELETE CASCADE\\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\\n```\\n\\n#### 表名：`dictionary`\\n\\n| 字段名 | 类型 | 主键 | 索引 | 说明 |\\n|--------|------|------|------|------|\\n| id | INT | PK | AUTO_INCREMENT | 词库ID |\\n| name | VARCHAR(100) | - | - | 词库名称 |\\n| description | TEXT | - | - | 描述 |\\n| category | VARCHAR(50) | - | INDEX | 分类 |\\n| total_words | INT | - | - | 总单词数 |\\n\\nDDL：\\n```sql\\nCREATE TABLE `dictionary` (\\n  `id` INT AUTO_INCREMENT PRIMARY KEY,\\n  `name` VARCHAR(100) NOT NULL,\\n  `description` TEXT,\\n  `category` VARCHAR(50),\\n  `total_words` INT DEFAULT 0,\\n  INDEX `idx_category` (`category`)\\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\\n```\\n\\n#### 表名：`stat_record`\\n\\n| 字段名 | 类型 | 主键 | 索引 | 说明 |\\n|--------|------|------|------|------|\\n| id | INT | PK | AUTO_INCREMENT | 统计ID |\\n| user_id | INT | - | INDEX | 用户ID |\\n| stat_date | DATE | - | - | 统计日期 |\\n| learned_count | INT | - | - | 学习单词数 |\\n| reviewed_count | INT | - | - | 复习单词数 |\\n| total_time | INT | - | - | 总学习时间（分钟） |\\n\\nDDL：\\n```sql\\nCREATE TABLE `stat_record` (\\n  `id` INT AUTO_INCREMENT PRIMARY KEY,\\n  `user_id` INT NOT NULL,\\n  `stat_date` DATE NOT NULL,\\n  `learned_count` INT DEFAULT 0,\\n  `reviewed_count` INT DEFAULT 0,\\n  `total_time` INT DEFAULT 0,\\n  UNIQUE KEY `uk_user_date` (`user_id`, `stat_date`),\\n  INDEX `idx_user_date` (`user_id`, `stat_date`),\\n  FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE CASCADE\\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\\n```\\n\\n### 3.3 数据库初始化脚本\\n\\n```sql\\n-- wordmaster_database_init.sql\\n-- 创建数据库\\nCREATE DATABASE IF NOT EXISTS wordmaster DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\\nUSE wordmaster;\\n\\n-- 用户表\\nCREATE TABLE `user` (\\n  `id` INT AUTO_INCREMENT PRIMARY KEY,\\n  `username` VARCHAR(50) NOT NULL UNIQUE,\\n  `password` VARCHAR(100) NOT NULL,\\n  `nickname` VARCHAR(50),\\n  `avatar` VARCHAR(200),\\n  `created_time` DATETIME DEFAULT CURRENT_TIMESTAMP,\\n  INDEX `idx_username` (`username`)\\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\\n\\n-- 词库表\\nCREATE TABLE `dictionary` (\\n  `id` INT AUTO_INCREMENT PRIMARY KEY,\\n  `name` VARCHAR(100) NOT NULL,\\n  `description` TEXT,\\n  `category` VARCHAR(50),\\n  `total_words` INT DEFAULT 0,\\n  INDEX `idx_category` (`category`)\\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\\n\\n-- 单词表\\nCREATE TABLE `word` (\\n  `id` INT AUTO_INCREMENT PRIMARY KEY,\\n  `word` VARCHAR(100) NOT NULL UNIQUE,\\n  `phonetic` VARCHAR(100),\\n  `definition` TEXT,\\n  `example` TEXT,\\n  `difficulty` TINYINT DEFAULT 3,\\n  `dictionary_id` INT,\\n  INDEX `idx_word` (`word`),\\n  INDEX `idx_dictionary` (`dictionary_id`),\\n  FOREIGN KEY (`dictionary_id`) REFERENCES `dictionary`(`id`) ON DELETE SET NULL\\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\\n\\n-- 学习记录表\\nCREATE TABLE `study_record` (\\n  `id` INT AUTO_INCREMENT PRIMARY KEY,\\n  `user_id` INT NOT NULL,\\n  `word_id` INT NOT NULL,\\n  `mastery_level` TINYINT DEFAULT 1,\\n  `last_review_time` DATETIME DEFAULT CURRENT_TIMESTAMP,\\n  `next_review_time` DATETIME,\\n  `review_count` INT DEFAULT 0,\\n  `created_time` DATETIME DEFAULT CURRENT_TIMESTAMP,\\n  UNIQUE KEY `uk_user_word` (`user_id`, `word_id`),\\n  INDEX `idx_user` (`user_id`),\\n  INDEX `idx_word` (`word_id`),\\n  INDEX `idx_next_review` (`next_review_time`),\\n  FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE CASCADE,\\n  FOREIGN KEY (`word_id`) REFERENCES `word`(`id`) ON DELETE CASCADE\\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\\n\\n-- 统计记录表\\nCREATE TABLE `stat_record` (\\n  `id` INT AUTO_INCREMENT PRIMARY KEY,\\n  `user_id` INT NOT NULL,\\n  `stat_date` DATE NOT NULL,\\n  `learned_count` INT DEFAULT 0,\\n  `reviewed_count` INT DEFAULT 0,\\n  `total_time` INT DEFAULT 0,\\n  UNIQUE KEY `uk_user_date` (`user_id`, `stat_date`),\\n  INDEX `idx_user_date` (`user_id`, `stat_date`),\\n  FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE CASCADE\\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\\n\\n-- 插入初始词库数据\\nINSERT INTO `dictionary` (`name`, `description`, `category`, `total_words`) VALUES\\n('四级核心词汇', '大学英语四级考试核心词汇', 'CET4', 3000),\\n('六级核心词汇', '大学英语六级考试核心词汇', 'CET6', 3500),\\n('考研英语词汇', '研究生入学考试英语词汇', 'POSTGRADUATE', 5500),\\n('托福核心词汇', 'TOEFL考试核心词汇', 'TOEFL', 4000),\\n('雅思核心词汇', 'IELTS考试核心词汇', 'IELTS', 4500),\\n('商务英语词汇', '商务场景常用英语词汇', 'BUSINESS', 2000),\\n('日常口语词汇', '日常生活口语常用词汇', 'DAILY', 1500);\\n\\n-- 插入示例单词数据（实际使用时从网易API获取）\\nINSERT INTO `word` (`word`, `phonetic`, `definition`, `example`, `difficulty`, `dictionary_id`) VALUES\\n('abandon', '/əˈbændən/', 'v. 放弃，抛弃', 'He abandoned his car and continued on foot.', 3, 1),\\n('ability', '/əˈbɪləti/', 'n. 能力，才能', 'She has the ability to speak four languages.', 2, 1),\\n('abroad', '/əˈbrɔːd/', 'adv. 在国外，到国外', 'He studied abroad for two years.', 2, 1),\\n('absence', '/ˈæbsəns/', 'n. 缺席，不在', 'His absence from the meeting was noticed.', 3, 1),\\n('absolute', '/ˈæbsəluːt/', 'adj. 绝对的，完全的', 'I have absolute confidence in her.', 4, 1),\\n('absorb', '/əbˈzɔːrb/', 'v. 吸收，吸引', 'Plants absorb carbon dioxide.', 3, 1),\\n('abstract', '/ˈæbstrækt/', 'adj. 抽象的', 'Abstract ideas can be difficult to understand.', 4, 1),\\n('abundant', '/əˈbʌndənt/', 'adj. 丰富的，充裕的', 'The region has abundant natural resources.', 3, 1),\\n('academic', '/ˌækəˈdemɪk/', 'adj. 学术的，学院的', 'She has an academic background in physics.', 3, 1),\\n('accelerate', '/əkˈseləreɪt/', 'v. 加速，促进', 'The car accelerated quickly.', 4, 1);\\n\\n-- 创建测试用户（密码：test123）\\nINSERT INTO `user` (`username`, `password`, `nickname`) VALUES\\n('testuser', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTV5UiC', '测试用户');\\n\\n-- 创建学习记录示例\\nINSERT INTO `study_record` (`user_id`, `word_id`, `mastery_level`, `last_review_time`, `next_review_time`, `review_count`) VALUES\\n(1, 1, 3, '2023-10-01 10:00:00', '2023-10-02 10:00:00', 2),\\n(1, 2, 4, '2023-10-01 11:00:00', '2023-10-03 11:00:00', 1),\\n(1, 3, 2, '2023-10-01 12:00:00', '2023-10-01 18:00:00', 3);\\n\\n-- 创建统计记录示例\\nINSERT INTO `stat_record` (`user_id`, `stat_date`, `learned_count`, `reviewed_count`, `total_time`) VALUES\\n(1, '2023-10-01', 10, 15, 45),\\n(1, '2023-09-30', 8, 12, 40),\\n(1, '2023-09-29', 12, 18, 55);\\n```\\n\\n## 4. 核心模块设计\\n\\n### 4.1 学习模块\\n\\n**职责**：管理用户学习过程，包括单词学习、复习算法、学习记录管理\\n\\n**核心算法**：基于艾宾浩斯遗忘曲线的复习算法\\n\\n```mermaid\\nflowchart TD\\n    A[开始学习] --> B[获取单词]\\n    B --> C[展示单词信息]\\n    C --> D[用户选择掌握程度]\\n    D --> E{掌握程度评估}\\n    E -->|掌握良好| F[计算较长复习间隔]\\n    E -->|掌握一般| G[计算中等复习间隔]\\n    E -->|掌握较差| H[计算较短复习间隔]\\n    F --> I[更新学习记录]\\n    G --> I\\n    H --> I\\n    I --> J[更新统计信息]\\n    J --> K[结束]\\n```\\n\\n**遗忘曲线算法实现**：\\n```java\\npublic class ForgettingCurveUtil {\\n    // 根据掌握程度和复习次数计算下次复习时间间隔（小时）\\n    public static int calculateNextReviewInterval(int masteryLevel, int reviewCount) {\\n        // 基础间隔（小时）\\n        int baseInterval;\\n        \\n        switch (masteryLevel) {\\n            case 1: // 完全不会\\n                baseInterval = 1;  // 1小时后复习\\n                break;\\n            case 2: // 有点印象\\n                baseInterval = 6;  // 6小时后复习\\n                break;\\n            case 3: // 基本掌握\\n                baseInterval = 24; // 1天后复习\\n                break;\\n            case 4: // 熟练掌握\\n                baseInterval = 72; // 3天后复习\\n                break;\\n            case 5: // 完全掌握\\n                baseInterval = 168; // 7天后复习\\n                break;\\n            default:\\n                baseInterval = 24;\\n        }\\n        \\n        // 根据复习次数调整间隔（复习次数越多，间隔越长）\\n        double factor = Math.pow(1.5, Math.min(reviewCount, 10));\\n        return (int) (baseInterval * factor);\\n    }\\n}\\n```\\n\\n### 4.2 外部API模块\\n\\n**职责**：调用网易有道词典API获取单词详细信息\\n\\n**接口调用流程**：\\n```mermaid\\nsequenceDiagram\\n    participant User as 用户\\n    participant Frontend as 前端\\n    participant Backend as 后端\\n    participant Netease as 网易API\\n    \\n    User->>Frontend: 搜索单词\\n    Frontend->>Backend: GET /words/search?keyword=xxx\\n    Backend->>Backend: 检查本地数据库\\n    Backend->>Netease: 调用网易API（如本地无数据）\\n    Netease-->>Backend: 返回单词数据\\n    Backend->>Backend: 保存到数据库\\n    Backend-->>Frontend: 返回单词信息\\n    Frontend-->>User: 显示搜索结果\\n```\\n\\n**网易API客户端实现**：\\n```java\\n@Component\\npublic class NeteaseApiClient {\\n    \\n    @Value(\\\"${netease.api.key}\\\")\\n    private String apiKey;\\n    \\n    @Value(\\\"${netease.api.secret}\\\")\\n    private String apiSecret;\\n    \\n    public WordResponse getWordDetail(String word) {\\n        // 构建请求\\n        String url = \\\"https://dict.youdao.com/jsonapi\\\";\\n        \\n        // 设置请求参数\\n        Map<String, String> params = new HashMap<>();\\n        params.put(\\\"q\\\", word);\\n        params.put(\\\"key\\\", apiKey);\\n        \\n        // 发送请求并解析响应\\n        // 实际实现中需要处理HTTP请求和JSON解析\\n        \\n        return parseResponse(response);\\n    }\\n    \\n    private WordResponse parseResponse(String response) {\\n        // 解析网易API返回的JSON数据\\n        // 提取单词、音标、释义、例句等信息\\n        return wordResponse;\\n    }\\n}\\n```\\n\\n### 4.3 统计模块\\n\\n**职责**：收集和分析用户学习数据，生成统计报告\\n\\n**数据收集时机**：\\n1. 用户完成单词学习时\\n2. 用户完成复习时\\n3. 每日定时任务汇总\\n\\n**统计维度**：\\n- 每日学习数据（学习单词数、复习单词数、学习时长）\\n- 学习趋势分析（日/周/月）\\n- 掌握程度分布\\n- 词库学习进度\\n\\n### 4.4 安全模块\\n\\n**职责**：用户认证和权限控制\\n\\n**实现方案**：\\n- 使用JWT（JSON Web Token）进行无状态认证\\n- 密码使用BCrypt加密存储\\n- 接口级权限控制（Spring Security）\\n- 防止SQL注入和XSS攻击\\n\\n```java\\n@Configuration\\n@EnableWebSecurity\\npublic class SecurityConfig {\\n    \\n    @Bean\\n    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {\\n        http\\n            .csrf().disable()\\n            .authorizeHttpRequests(auth -> auth\\n                .requestMatchers(\\\"/api/v1/auth/**\\\").permitAll()\\n                .requestMatchers(\\\"/api/v1/words/search\\\").permitAll()\\n                .anyRequest().authenticated()\\n            )\\n            .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)\\n            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);\\n        \\n        return http.build();\\n    }\\n    \\n    @Bean\\n    public JwtAuthenticationFilter jwtAuthenticationFilter() {\\n        return new JwtAuthenticationFilter();\\n    }\\n}\\n```\\n\\n## 5. 部署设计\\n\\n### 5.1 Docker部署配置\\n\\n**docker-compose.yml**：\\n```yaml\\nversion: '3.8'\\n\\nservices:\\n  mysql:\\n    image: mysql:8.0\\n    container_name: wordmaster-mysql\\n    environment:\\n      MYSQL_ROOT_PASSWORD: rootpassword\\n      MYSQL_DATABASE: wordmaster\\n      MYSQL_USER: wordmaster\\n      MYSQL_PASSWORD: wordmaster123\\n    ports:\\n      - \\\"3306:3306\\\"\\n    volumes:\\n      - mysql_data:/var/lib/mysql\\n      - ./init.sql:/docker-entrypoint-initdb.d/init.sql\\n    networks:\\n      - wordmaster-network\\n\\n  redis:\\n    image: redis:7-alpine\\n    container_name: wordmaster-redis\\n    ports:\\n      - \\\"6379:6379\\\"\\n    volumes:\\n      - redis_data:/data\\n    networks:\\n      - wordmaster-network\\n\\n  backend:\\n    build: ./wordmaster-backend\\n    container_name: wordmaster-backend\\n    depends_on:\\n      - mysql\\n      - redis\\n    environment:\\n      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/wordmaster\\n      SPRING_DATASOURCE_USERNAME: wordmaster\\n      SPRING_DATASOURCE_PASSWORD: wordmaster123\\n      SPRING_REDIS_HOST: redis\\n      SPRING_REDIS_PORT: 6379\\n    ports:\\n      - \\\"8080:8080\\\"\\n    networks:\\n      - wordmaster-network\\n\\n  nginx:\\n    image: nginx:alpine\\n    container_name: wordmaster-nginx\\n    depends_on:\\n      - backend\\n    ports:\\n      - \\\"80:80\\\"\\n    volumes:\\n      - ./nginx.conf:/etc/nginx/nginx.conf\\n      - ./wordmaster-frontend/dist:/usr/share/nginx/html\\n    networks:\\n      - wordmaster-network\\n\\nvolumes:\\n  mysql_data:\\n  redis_data:\\n\\nnetworks:\\n  wordmaster-network:\\n    driver: bridge\\n```\\n\\n### 5.2 环境配置\\n\\n**application.yml**：\\n```yaml\\nspring:\\n  datasource:\\n    url: jdbc:mysql://localhost:3306/wordmaster\\n    username: wordmaster\\n    password: wordmaster123\\n    driver-class-name: com.mysql.cj.jdbc.Driver\\n  redis:\\n    host: localhost\\n    port: 6379\\n    database: 0\\n  jackson:\\n    date-format: yyyy-MM-dd HH:mm:ss\\n    time-zone: GMT+8\\n\\njwt:\\n  secret: wordmaster-jwt-secret-key-2023\\n  expiration: 86400000  # 24小时\\n\\nnetease:\\n  api:\\n    key: ${NETEASE_API_KEY}\\n    secret: ${NETEASE_API_SECRET}\\n\\nserver:\\n  port: 8080\\n  servlet:\\n    context-path: /api\\n```\\n\\n## 6. 开发计划\\n\\n### 6.1 开发阶段\\n\\n**第一阶段（1-2周）**：\\n- 数据库设计和初始化\\n- 用户管理模块开发\\n- 基础框架搭建\\n\\n**第二阶段（2-3周）**：\\n- 单词模块开发\\n- 学习模块核心功能\\n- 外部API集成\\n\\n**第三阶段（1-2周）**：\\n- 统计模块开发\\n- 前端页面开发\\n- 测试和优化\\n\\n**第四阶段（1周）**：\\n- 部署配置\\n- 文档编写\\n- 上线准备\\n\\n### 6.2 测试策略\\n\\n**单元测试**：使用JUnit + Mockito测试业务逻辑\\n**集成测试**：测试API接口和数据库交互\\n**性能测试**：使用JMeter测试并发性能\\n**安全测试**：检查SQL注入、XSS等安全漏洞\"}"
+    }
+  ]
+}</pre>
+            </div>
+        </div>
+
+        <div class="event tool-call">
+            <div class="event-header">
+                <span class="step">Step 2</span>
+                <span class="timestamp">2026-04-01T23:36:33.231728</span>
+                <span class="event-type">tool_call</span>
+                <span class="expandable" onclick="toggleDetails('details-9')">[▼ 详情]</span>
+            </div>
+            <div id="details-9" class="details">
+                <pre>{
+  "tool_name": "Write",
+  "tool_call_id": "call_00_Uz1jheuRfiCljpo3oKAwTEIw",
+  "arguments": "{\"path\": \"DESIGN.md\", \"content\": \"# 软件设计文档\\n\\n## 1. 系统架构\\n\\n### 1.1 整体架构\\n\\n**架构说明**：系统采用前后端分离架构，后端使用SpringBoot提供RESTful API，前端使用UniApp开发跨平台小程序。系统包含用户管理、单词学习、智能复习、词库管理、学习统计等核心模块。\\n\\n**技术栈**：\\n- 前端：UniApp + Vue3 + uView UI\\n- 后端：SpringBoot 3.x + MyBatis Plus + Spring Security\\n- 数据库：MySQL 8.0\\n- 缓存：Redis 7.x\\n- 外部接口：网易有道词典API\\n\\n**架构图**：\\n```mermaid\\nflowchart TD\\n    A[用户] --> B[UniApp小程序]\\n    B --> C[Nginx网关]\\n    C --> D[SpringBoot后端]\\n    D --> E[(MySQL数据库)]\\n    D --> F[(Redis缓存)]\\n    D --> G[网易有道API]\\n    \\n    subgraph \\\"后端服务\\\"\\n        D1[用户模块]\\n        D2[单词模块]\\n        D3[学习模块]\\n        D4[统计模块]\\n        D5[词库模块]\\n    end\\n    \\n    D --> D1\\n    D --> D2\\n    D --> D3\\n    D --> D4\\n    D --> D5\\n```\\n\\n### 1.2 模块划分\\n\\n| 模块名称 | 职责 | 依赖模块 |\\n|---------|------|----------|\\n| 用户模块 | 用户注册、登录、个人信息管理 | 无 |\\n| 单词模块 | 单词信息管理、单词搜索 | 外部API模块 |\\n| 学习模块 | 单词学习、智能复习、学习记录 | 用户模块、单词模块 |\\n| 词库模块 | 词库管理、词库进度跟踪 | 单词模块、学习模块 |\\n| 统计模块 | 学习数据统计、报表生成 | 学习模块 |\\n| 外部API模块 | 调用网易有道词典API | 无 |\\n\\n### 1.3 项目目录结构\\n\\n```\\nwordmaster-backend/\\n├── src/main/java/com/wordmaster/\\n│   ├── WordMasterApplication.java\\n│   ├── config/\\n│   │   ├── SecurityConfig.java\\n│   │   ├── RedisConfig.java\\n│   │   └── WebConfig.java\\n│   ├── controller/\\n│   │   ├── AuthController.java\\n│   │   ├── UserController.java\\n│   │   ├── WordController.java\\n│   │   ├── StudyController.java\\n│   │   ├── DictionaryController.java\\n│   │   └── StatController.java\\n│   ├── service/\\n│   │   ├── impl/\\n│   │   │   ├── UserServiceImpl.java\\n│   │   │   ├── WordServiceImpl.java\\n│   │   │   ├── StudyServiceImpl.java\\n│   │   │   ├── DictionaryServiceImpl.java\\n│   │   │   └── StatServiceImpl.java\\n│   │   ├── UserService.java\\n│   │   ├── WordService.java\\n│   │   ├── StudyService.java\\n│   │   ├── DictionaryService.java\\n│   │   └── StatService.java\\n│   ├── mapper/\\n│   │   ├── UserMapper.java\\n│   │   ├── WordMapper.java\\n│   │   ├── StudyRecordMapper.java\\n│   │   ├── DictionaryMapper.java\\n│   │   └── StatMapper.java\\n│   ├── entity/\\n│   │   ├── User.java\\n│   │   ├── Word.java\\n│   │   ├── StudyRecord.java\\n│   │   ├── Dictionary.java\\n│   │   └── StatRecord.java\\n│   ├── dto/\\n│   │   ├── request/\\n│   │   │   ├── LoginRequest.java\\n│   │   │   ├── RegisterRequest.java\\n│   │   │   └── StudyRequest.java\\n│   │   └── response/\\n│   │       ├── ApiResponse.java\\n│   │       ├── UserResponse.java\\n│   │       └── WordResponse.java\\n│   ├── util/\\n│   │   ├── JwtUtil.java\\n│   │   ├── RedisUtil.java\\n│   │   ├── ForgettingCurveUtil.java\\n│   │   └── NeteaseApiClient.java\\n│   └── exception/\\n│       ├── GlobalExceptionHandler.java\\n│       └── BusinessException.java\\n├── src/main/resources/\\n│   ├── application.yml\\n│   ├── mapper/\\n│   └── static/\\n├── src/test/\\n├── Dockerfile\\n├── docker-compose.yml\\n├── pom.xml\\n└── README.md\\n\\nwordmaster-frontend/\\n├── pages/\\n│   ├── login/\\n│   │   └── login.vue\\n│   ├── index/\\n│   │   └── index.vue\\n│   ├── study/\\n│   │   └── study.vue\\n│   ├── review/\\n│   │   └── review.vue\\n│   ├── dictionary/\\n│   │   └── dictionary.vue\\n│   ├── statistics/\\n│   │   └── statistics.vue\\n│   └── profile/\\n│       └── profile.vue\\n├── components/\\n│   ├── word-card.vue\\n│   ├── study-progress.vue\\n│   └── stat-chart.vue\\n├── store/\\n│   └── user.js\\n├── api/\\n│   ├── request.js\\n│   └── api.js\\n├── utils/\\n│   ├── auth.js\\n│   └── common.js\\n├── static/\\n├── manifest.json\\n├── pages.json\\n├── App.vue\\n├── main.js\\n└── uni.scss\\n```\\n\\n## 2. API 设计\\n\\n### 2.1 接口规范\\n\\n**Base URL**: `/api/v1`\\n\\n**通用规范**：\\n- 认证方式：Bearer ***（JWT）\\n- 通用请求头：`Content-Type: application/json`\\n- 通用响应格式：\\n\\n```json\\n{\\n  \\\"code\\\": 0,\\n  \\\"message\\\": \\\"success\\\",\\n  \\\"data\\\": {},\\n  \\\"timestamp\\\": 1630000000000\\n}\\n```\\n\\n**错误码定义**：\\n- 0: 成功\\n- 1000-1999: 用户相关错误\\n- 2000-2999: 单词相关错误\\n- 3000-3999: 学习相关错误\\n- 4000-4999: 系统错误\\n\\n### 2.2 接口列表\\n\\n#### 2.2.1 用户认证模块\\n\\n**接口名称**：POST `/auth/register`\\n\\n请求参数：\\n\\n| 参数名 | 类型 | 必填 | 说明 |\\n|--------|------|------|------|\\n| username | string | 是 | 用户名 |\\n| password | string | 是 | 密码 |\\n| nickname | string | 否 | 昵称 |\\n\\n请求示例：\\n```json\\n{\\n  \\\"username\\\": \\\"testuser\\\",\\n  \\\"password\\\": \\\"password123\\\",\\n  \\\"nickname\\\": \\\"测试用户\\\"\\n}\\n```\\n\\n响应示例：\\n```json\\n{\\n  \\\"code\\\": 0,\\n  \\\"message\\\": \\\"注册成功\\\",\\n  \\\"data\\\": {\\n    \\\"id\\\": 1,\\n    \\\"username\\\": \\\"testuser\\\",\\n    \\\"nickname\\\": \\\"测试用户\\\",\\n    \\\"token\\\": \\\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\\\"\\n  }\\n}\\n```\\n\\n**接口名称**：POST `/auth/login`\\n\\n请求参数：\\n\\n| 参数名 | 类型 | 必填 | 说明 |\\n|--------|------|------|------|\\n| username | string | 是 | 用户名 |\\n| password | string | 是 | 密码 |\\n\\n响应示例：\\n```json\\n{\\n  \\\"code\\\": 0,\\n  \\\"message\\\": \\\"登录成功\\\",\\n  \\\"data\\\": {\\n    \\\"id\\\": 1,\\n    \\\"username\\\": \\\"testuser\\\",\\n    \\\"nickname\\\": \\\"测试用户\\\",\\n    \\\"token\\\": \\\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\\\"\\n  }\\n}\\n```\\n\\n#### 2.2.2 单词模块\\n\\n**接口名称**：GET `/words/{id}`\\n\\n请求参数：\\n\\n| 参数名 | 类型 | 必填 | 说明 |\\n|--------|------|------|------|\\n| id | int | 是 | 单词ID |\\n\\n响应示例：\\n```json\\n{\\n  \\\"code\\\": 0,\\n  \\\"message\\\": \\\"success\\\",\\n  \\\"data\\\": {\\n    \\\"id\\\": 1,\\n    \\\"word\\\": \\\"abandon\\\",\\n    \\\"phonetic\\\": \\\"/əˈbændən/\\\",\\n    \\\"definition\\\": \\\"v. 放弃，抛弃\\\",\\n    \\\"example\\\": \\\"He abandoned his car and continued on foot.\\\",\\n    \\\"difficulty\\\": 3\\n  }\\n}\\n```\\n\\n**接口名称**：GET `/words/search`\\n\\n请求参数：\\n\\n| 参数名 | 类型 | 必填 | 说明 |\\n|--------|------|------|------|\\n| keyword | string | 是 | 搜索关键词 |\\n| page | int | 否 | 页码，默认1 |\\n| size | int | 否 | 每页大小，默认10 |\\n\\n#### 2.2.3 学习模块\\n\\n**接口名称**：POST `/study/learn`\\n\\n请求参数：\\n\\n| 参数名 | 类型 | 必填 | 说明 |\\n|--------|------|------|------|\\n| wordId | int | 是 | 单词ID |\\n| mastery | int | 是 | 掌握程度（1-5） |\\n\\n**接口名称**：GET `/study/review-list`\\n\\n请求参数：无（从token获取用户ID）\\n\\n响应示例：\\n```json\\n{\\n  \\\"code\\\": 0,\\n  \\\"message\\\": \\\"success\\\",\\n  \\\"data\\\": {\\n    \\\"total\\\": 15,\\n    \\\"words\\\": [\\n      {\\n        \\\"id\\\": 1,\\n        \\\"word\\\": \\\"abandon\\\",\\n        \\\"phonetic\\\": \\\"/əˈbændən/\\\",\\n        \\\"definition\\\": \\\"v. 放弃，抛弃\\\",\\n        \\\"lastReviewTime\\\": \\\"2023-10-01 10:00:00\\\",\\n        \\\"nextReviewTime\\\": \\\"2023-10-02 10:00:00\\\",\\n        \\\"reviewCount\\\": 2\\n      }\\n    ]\\n  }\\n}\\n```\\n\\n#### 2.2.4 词库模块\\n\\n**接口名称**：GET `/dictionaries`\\n\\n请求参数：无\\n\\n响应示例：\\n```json\\n{\\n  \\\"code\\\": 0,\\n  \\\"message\\\": \\\"success\\\",\\n  \\\"data\\\": [\\n    {\\n      \\\"id\\\": 1,\\n      \\\"name\\\": \\\"四级核心词汇\\\",\\n      \\\"description\\\": \\\"大学英语四级考试核心词汇\\\",\\n      \\\"totalWords\\\": 3000,\\n      \\\"learnedWords\\\": 150,\\n      \\\"progress\\\": 5.0\\n    }\\n  ]\\n}\\n```\\n\\n#### 2.2.5 统计模块\\n\\n**接口名称**：GET `/stats/daily`\\n\\n请求参数：\\n\\n| 参数名 | 类型 | 必填 | 说明 |\\n|--------|------|------|------|\\n| date | string | 否 | 日期（yyyy-MM-dd），默认今天 |\\n\\n**接口名称**：GET `/stats/trend`\\n\\n请求参数：\\n\\n| 参数名 | 类型 | 必填 | 说明 |\\n|--------|------|------|------|\\n| type | string | 是 | 统计类型（day/week/month） |\\n| days | int | 否 | 天数，默认7 |\\n\\n## 3. 数据库设计\\n\\n### 3.1 ER 图\\n\\n```mermaid\\nerDiagram\\n    USER ||--o{ STUDY_RECORD : \\\"has\\\"\\n    USER ||--o{ STAT_RECORD : \\\"generates\\\"\\n    WORD ||--o{ STUDY_RECORD : \\\"studied in\\\"\\n    DICTIONARY ||--o{ WORD : \\\"contains\\\"\\n    \\n    USER {\\n        int id PK\\n        string username UK\\n        string password\\n        string nickname\\n        string avatar\\n        datetime created_time\\n    }\\n    \\n    WORD {\\n        int id PK\\n        string word UK\\n        string phonetic\\n        string definition\\n        string example\\n        int difficulty\\n        int dictionary_id FK\\n    }\\n    \\n    STUDY_RECORD {\\n        int id PK\\n        int user_id FK\\n        int word_id FK\\n        int mastery_level\\n        datetime last_review_time\\n        datetime next_review_time\\n        int review_count\\n    }\\n    \\n    DICTIONARY {\\n        int id PK\\n        string name\\n        string description\\n        string category\\n        int total_words\\n    }\\n    \\n    STAT_RECORD {\\n        int id PK\\n        int user_id FK\\n        date stat_date\\n        int learned_count\\n        int reviewed_count\\n        int total_time\\n    }\\n```\\n\\n### 3.2 表结构\\n\\n#### 表名：`user`\\n\\n| 字段名 | 类型 | 主键 | 索引 | 说明 |\\n|--------|------|------|------|------|\\n| id | INT | PK | AUTO_INCREMENT | 用户ID |\\n| username | VARCHAR(50) | - | UNIQUE | 用户名 |\\n| password | VARCHAR(100) | - | - | 密码（BCrypt加密） |\\n| nickname | VARCHAR(50) | - | - | 昵称 |\\n| avatar | VARCHAR(200) | - | - | 头像URL |\\n| created_time | DATETIME | - | - | 创建时间 |\\n\\nDDL：\\n```sql\\nCREATE TABLE `user` (\\n  `id` INT AUTO_INCREMENT PRIMARY KEY,\\n  `username` VARCHAR(50) NOT NULL UNIQUE,\\n  `password` VARCHAR(100) NOT NULL,\\n  `nickname` VARCHAR(50),\\n  `avatar` VARCHAR(200),\\n  `created_time` DATETIME DEFAULT CURRENT_TIMESTAMP,\\n  INDEX `idx_username` (`username`)\\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\\n```\\n\\n#### 表名：`word`\\n\\n| 字段名 | 类型 | 主键 | 索引 | 说明 |\\n|--------|------|------|------|------|\\n| id | INT | PK | AUTO_INCREMENT | 单词ID |\\n| word | VARCHAR(100) | - | UNIQUE | 单词 |\\n| phonetic | VARCHAR(100) | - | - | 音标 |\\n| definition | TEXT | - | - | 释义 |\\n| example | TEXT | - | - | 例句 |\\n| difficulty | TINYINT | - | - | 难度等级（1-5） |\\n| dictionary_id | INT | - | INDEX | 所属词库ID |\\n\\nDDL：\\n```sql\\nCREATE TABLE `word` (\\n  `id` INT AUTO_INCREMENT PRIMARY KEY,\\n  `word` VARCHAR(100) NOT NULL UNIQUE,\\n  `phonetic` VARCHAR(100),\\n  `definition` TEXT,\\n  `example` TEXT,\\n  `difficulty` TINYINT DEFAULT 3,\\n  `dictionary_id` INT,\\n  INDEX `idx_word` (`word`),\\n  INDEX `idx_dictionary` (`dictionary_id`)\\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\\n```\\n\\n#### 表名：`study_record`\\n\\n| 字段名 | 类型 | 主键 | 索引 | 说明 |\\n|--------|------|------|------|------|\\n| id | INT | PK | AUTO_INCREMENT | 记录ID |\\n| user_id | INT | - | INDEX | 用户ID |\\n| word_id | INT | - | INDEX | 单词ID |\\n| mastery_level | TINYINT | - | - | 掌握程度（1-5） |\\n| last_review_time | DATETIME | - | - | 上次复习时间 |\\n| next_review_time | DATETIME | - | - | 下次复习时间 |\\n| review_count | INT | - | - | 复习次数 |\\n| created_time | DATETIME | - | - | 创建时间 |\\n\\nDDL：\\n```sql\\nCREATE TABLE `study_record` (\\n  `id` INT AUTO_INCREMENT PRIMARY KEY,\\n  `user_id` INT NOT NULL,\\n  `word_id` INT NOT NULL,\\n  `mastery_level` TINYINT DEFAULT 1,\\n  `last_review_time` DATETIME DEFAULT CURRENT_TIMESTAMP,\\n  `next_review_time` DATETIME,\\n  `review_count` INT DEFAULT 0,\\n  `created_time` DATETIME DEFAULT CURRENT_TIMESTAMP,\\n  UNIQUE KEY `uk_user_word` (`user_id`, `word_id`),\\n  INDEX `idx_user` (`user_id`),\\n  INDEX `idx_word` (`word_id`),\\n  INDEX `idx_next_review` (`next_review_time`),\\n  FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE CASCADE,\\n  FOREIGN KEY (`word_id`) REFERENCES `word`(`id`) ON DELETE CASCADE\\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\\n```\\n\\n#### 表名：`dictionary`\\n\\n| 字段名 | 类型 | 主键 | 索引 | 说明 |\\n|--------|------|------|------|------|\\n| id | INT | PK | AUTO_INCREMENT | 词库ID |\\n| name | VARCHAR(100) | - | - | 词库名称 |\\n| description | TEXT | - | - | 描述 |\\n| category | VARCHAR(50) | - | INDEX | 分类 |\\n| total_words | INT | - | - | 总单词数 |\\n\\nDDL：\\n```sql\\nCREATE TABLE `dictionary` (\\n  `id` INT AUTO_INCREMENT PRIMARY KEY,\\n  `name` VARCHAR(100) NOT NULL,\\n  `description` TEXT,\\n  `category` VARCHAR(50),\\n  `total_words` INT DEFAULT 0,\\n  INDEX `idx_category` (`category`)\\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\\n```\\n\\n#### 表名：`stat_record`\\n\\n| 字段名 | 类型 | 主键 | 索引 | 说明 |\\n|--------|------|------|------|------|\\n| id | INT | PK | AUTO_INCREMENT | 统计ID |\\n| user_id | INT | - | INDEX | 用户ID |\\n| stat_date | DATE | - | - | 统计日期 |\\n| learned_count | INT | - | - | 学习单词数 |\\n| reviewed_count | INT | - | - | 复习单词数 |\\n| total_time | INT | - | - | 总学习时间（分钟） |\\n\\nDDL：\\n```sql\\nCREATE TABLE `stat_record` (\\n  `id` INT AUTO_INCREMENT PRIMARY KEY,\\n  `user_id` INT NOT NULL,\\n  `stat_date` DATE NOT NULL,\\n  `learned_count` INT DEFAULT 0,\\n  `reviewed_count` INT DEFAULT 0,\\n  `total_time` INT DEFAULT 0,\\n  UNIQUE KEY `uk_user_date` (`user_id`, `stat_date`),\\n  INDEX `idx_user_date` (`user_id`, `stat_date`),\\n  FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE CASCADE\\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\\n```\\n\\n### 3.3 数据库初始化脚本\\n\\n```sql\\n-- wordmaster_database_init.sql\\n-- 创建数据库\\nCREATE DATABASE IF NOT EXISTS wordmaster DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\\nUSE wordmaster;\\n\\n-- 用户表\\nCREATE TABLE `user` (\\n  `id` INT AUTO_INCREMENT PRIMARY KEY,\\n  `username` VARCHAR(50) NOT NULL UNIQUE,\\n  `password` VARCHAR(100) NOT NULL,\\n  `nickname` VARCHAR(50),\\n  `avatar` VARCHAR(200),\\n  `created_time` DATETIME DEFAULT CURRENT_TIMESTAMP,\\n  INDEX `idx_username` (`username`)\\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\\n\\n-- 词库表\\nCREATE TABLE `dictionary` (\\n  `id` INT AUTO_INCREMENT PRIMARY KEY,\\n  `name` VARCHAR(100) NOT NULL,\\n  `description` TEXT,\\n  `category` VARCHAR(50),\\n  `total_words` INT DEFAULT 0,\\n  INDEX `idx_category` (`category`)\\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\\n\\n-- 单词表\\nCREATE TABLE `word` (\\n  `id` INT AUTO_INCREMENT PRIMARY KEY,\\n  `word` VARCHAR(100) NOT NULL UNIQUE,\\n  `phonetic` VARCHAR(100),\\n  `definition` TEXT,\\n  `example` TEXT,\\n  `difficulty` TINYINT DEFAULT 3,\\n  `dictionary_id` INT,\\n  INDEX `idx_word` (`word`),\\n  INDEX `idx_dictionary` (`dictionary_id`),\\n  FOREIGN KEY (`dictionary_id`) REFERENCES `dictionary`(`id`) ON DELETE SET NULL\\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\\n\\n-- 学习记录表\\nCREATE TABLE `study_record` (\\n  `id` INT AUTO_INCREMENT PRIMARY KEY,\\n  `user_id` INT NOT NULL,\\n  `word_id` INT NOT NULL,\\n  `mastery_level` TINYINT DEFAULT 1,\\n  `last_review_time` DATETIME DEFAULT CURRENT_TIMESTAMP,\\n  `next_review_time` DATETIME,\\n  `review_count` INT DEFAULT 0,\\n  `created_time` DATETIME DEFAULT CURRENT_TIMESTAMP,\\n  UNIQUE KEY `uk_user_word` (`user_id`, `word_id`),\\n  INDEX `idx_user` (`user_id`),\\n  INDEX `idx_word` (`word_id`),\\n  INDEX `idx_next_review` (`next_review_time`),\\n  FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE CASCADE,\\n  FOREIGN KEY (`word_id`) REFERENCES `word`(`id`) ON DELETE CASCADE\\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\\n\\n-- 统计记录表\\nCREATE TABLE `stat_record` (\\n  `id` INT AUTO_INCREMENT PRIMARY KEY,\\n  `user_id` INT NOT NULL,\\n  `stat_date` DATE NOT NULL,\\n  `learned_count` INT DEFAULT 0,\\n  `reviewed_count` INT DEFAULT 0,\\n  `total_time` INT DEFAULT 0,\\n  UNIQUE KEY `uk_user_date` (`user_id`, `stat_date`),\\n  INDEX `idx_user_date` (`user_id`, `stat_date`),\\n  FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE CASCADE\\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\\n\\n-- 插入初始词库数据\\nINSERT INTO `dictionary` (`name`, `description`, `category`, `total_words`) VALUES\\n('四级核心词汇', '大学英语四级考试核心词汇', 'CET4', 3000),\\n('六级核心词汇', '大学英语六级考试核心词汇', 'CET6', 3500),\\n('考研英语词汇', '研究生入学考试英语词汇', 'POSTGRADUATE', 5500),\\n('托福核心词汇', 'TOEFL考试核心词汇', 'TOEFL', 4000),\\n('雅思核心词汇', 'IELTS考试核心词汇', 'IELTS', 4500),\\n('商务英语词汇', '商务场景常用英语词汇', 'BUSINESS', 2000),\\n('日常口语词汇', '日常生活口语常用词汇', 'DAILY', 1500);\\n\\n-- 插入示例单词数据（实际使用时从网易API获取）\\nINSERT INTO `word` (`word`, `phonetic`, `definition`, `example`, `difficulty`, `dictionary_id`) VALUES\\n('abandon', '/əˈbændən/', 'v. 放弃，抛弃', 'He abandoned his car and continued on foot.', 3, 1),\\n('ability', '/əˈbɪləti/', 'n. 能力，才能', 'She has the ability to speak four languages.', 2, 1),\\n('abroad', '/əˈbrɔːd/', 'adv. 在国外，到国外', 'He studied abroad for two years.', 2, 1),\\n('absence', '/ˈæbsəns/', 'n. 缺席，不在', 'His absence from the meeting was noticed.', 3, 1),\\n('absolute', '/ˈæbsəluːt/', 'adj. 绝对的，完全的', 'I have absolute confidence in her.', 4, 1),\\n('absorb', '/əbˈzɔːrb/', 'v. 吸收，吸引', 'Plants absorb carbon dioxide.', 3, 1),\\n('abstract', '/ˈæbstrækt/', 'adj. 抽象的', 'Abstract ideas can be difficult to understand.', 4, 1),\\n('abundant', '/əˈbʌndənt/', 'adj. 丰富的，充裕的', 'The region has abundant natural resources.', 3, 1),\\n('academic', '/ˌækəˈdemɪk/', 'adj. 学术的，学院的', 'She has an academic background in physics.', 3, 1),\\n('accelerate', '/əkˈseləreɪt/', 'v. 加速，促进', 'The car accelerated quickly.', 4, 1);\\n\\n-- 创建测试用户（密码：test123）\\nINSERT INTO `user` (`username`, `password`, `nickname`) VALUES\\n('testuser', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTV5UiC', '测试用户');\\n\\n-- 创建学习记录示例\\nINSERT INTO `study_record` (`user_id`, `word_id`, `mastery_level`, `last_review_time`, `next_review_time`, `review_count`) VALUES\\n(1, 1, 3, '2023-10-01 10:00:00', '2023-10-02 10:00:00', 2),\\n(1, 2, 4, '2023-10-01 11:00:00', '2023-10-03 11:00:00', 1),\\n(1, 3, 2, '2023-10-01 12:00:00', '2023-10-01 18:00:00', 3);\\n\\n-- 创建统计记录示例\\nINSERT INTO `stat_record` (`user_id`, `stat_date`, `learned_count`, `reviewed_count`, `total_time`) VALUES\\n(1, '2023-10-01', 10, 15, 45),\\n(1, '2023-09-30', 8, 12, 40),\\n(1, '2023-09-29', 12, 18, 55);\\n```\\n\\n## 4. 核心模块设计\\n\\n### 4.1 学习模块\\n\\n**职责**：管理用户学习过程，包括单词学习、复习算法、学习记录管理\\n\\n**核心算法**：基于艾宾浩斯遗忘曲线的复习算法\\n\\n```mermaid\\nflowchart TD\\n    A[开始学习] --> B[获取单词]\\n    B --> C[展示单词信息]\\n    C --> D[用户选择掌握程度]\\n    D --> E{掌握程度评估}\\n    E -->|掌握良好| F[计算较长复习间隔]\\n    E -->|掌握一般| G[计算中等复习间隔]\\n    E -->|掌握较差| H[计算较短复习间隔]\\n    F --> I[更新学习记录]\\n    G --> I\\n    H --> I\\n    I --> J[更新统计信息]\\n    J --> K[结束]\\n```\\n\\n**遗忘曲线算法实现**：\\n```java\\npublic class ForgettingCurveUtil {\\n    // 根据掌握程度和复习次数计算下次复习时间间隔（小时）\\n    public static int calculateNextReviewInterval(int masteryLevel, int reviewCount) {\\n        // 基础间隔（小时）\\n        int baseInterval;\\n        \\n        switch (masteryLevel) {\\n            case 1: // 完全不会\\n                baseInterval = 1;  // 1小时后复习\\n                break;\\n            case 2: // 有点印象\\n                baseInterval = 6;  // 6小时后复习\\n                break;\\n            case 3: // 基本掌握\\n                baseInterval = 24; // 1天后复习\\n                break;\\n            case 4: // 熟练掌握\\n                baseInterval = 72; // 3天后复习\\n                break;\\n            case 5: // 完全掌握\\n                baseInterval = 168; // 7天后复习\\n                break;\\n            default:\\n                baseInterval = 24;\\n        }\\n        \\n        // 根据复习次数调整间隔（复习次数越多，间隔越长）\\n        double factor = Math.pow(1.5, Math.min(reviewCount, 10));\\n        return (int) (baseInterval * factor);\\n    }\\n}\\n```\\n\\n### 4.2 外部API模块\\n\\n**职责**：调用网易有道词典API获取单词详细信息\\n\\n**接口调用流程**：\\n```mermaid\\nsequenceDiagram\\n    participant User as 用户\\n    participant Frontend as 前端\\n    participant Backend as 后端\\n    participant Netease as 网易API\\n    \\n    User->>Frontend: 搜索单词\\n    Frontend->>Backend: GET /words/search?keyword=xxx\\n    Backend->>Backend: 检查本地数据库\\n    Backend->>Netease: 调用网易API（如本地无数据）\\n    Netease-->>Backend: 返回单词数据\\n    Backend->>Backend: 保存到数据库\\n    Backend-->>Frontend: 返回单词信息\\n    Frontend-->>User: 显示搜索结果\\n```\\n\\n**网易API客户端实现**：\\n```java\\n@Component\\npublic class NeteaseApiClient {\\n    \\n    @Value(\\\"${netease.api.key}\\\")\\n    private String apiKey;\\n    \\n    @Value(\\\"${netease.api.secret}\\\")\\n    private String apiSecret;\\n    \\n    public WordResponse getWordDetail(String word) {\\n        // 构建请求\\n        String url = \\\"https://dict.youdao.com/jsonapi\\\";\\n        \\n        // 设置请求参数\\n        Map<String, String> params = new HashMap<>();\\n        params.put(\\\"q\\\", word);\\n        params.put(\\\"key\\\", apiKey);\\n        \\n        // 发送请求并解析响应\\n        // 实际实现中需要处理HTTP请求和JSON解析\\n        \\n        return parseResponse(response);\\n    }\\n    \\n    private WordResponse parseResponse(String response) {\\n        // 解析网易API返回的JSON数据\\n        // 提取单词、音标、释义、例句等信息\\n        return wordResponse;\\n    }\\n}\\n```\\n\\n### 4.3 统计模块\\n\\n**职责**：收集和分析用户学习数据，生成统计报告\\n\\n**数据收集时机**：\\n1. 用户完成单词学习时\\n2. 用户完成复习时\\n3. 每日定时任务汇总\\n\\n**统计维度**：\\n- 每日学习数据（学习单词数、复习单词数、学习时长）\\n- 学习趋势分析（日/周/月）\\n- 掌握程度分布\\n- 词库学习进度\\n\\n### 4.4 安全模块\\n\\n**职责**：用户认证和权限控制\\n\\n**实现方案**：\\n- 使用JWT（JSON Web Token）进行无状态认证\\n- 密码使用BCrypt加密存储\\n- 接口级权限控制（Spring Security）\\n- 防止SQL注入和XSS攻击\\n\\n```java\\n@Configuration\\n@EnableWebSecurity\\npublic class SecurityConfig {\\n    \\n    @Bean\\n    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {\\n        http\\n            .csrf().disable()\\n            .authorizeHttpRequests(auth -> auth\\n                .requestMatchers(\\\"/api/v1/auth/**\\\").permitAll()\\n                .requestMatchers(\\\"/api/v1/words/search\\\").permitAll()\\n                .anyRequest().authenticated()\\n            )\\n            .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)\\n            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);\\n        \\n        return http.build();\\n    }\\n    \\n    @Bean\\n    public JwtAuthenticationFilter jwtAuthenticationFilter() {\\n        return new JwtAuthenticationFilter();\\n    }\\n}\\n```\\n\\n## 5. 部署设计\\n\\n### 5.1 Docker部署配置\\n\\n**docker-compose.yml**：\\n```yaml\\nversion: '3.8'\\n\\nservices:\\n  mysql:\\n    image: mysql:8.0\\n    container_name: wordmaster-mysql\\n    environment:\\n      MYSQL_ROOT_PASSWORD: rootpassword\\n      MYSQL_DATABASE: wordmaster\\n      MYSQL_USER: wordmaster\\n      MYSQL_PASSWORD: wordmaster123\\n    ports:\\n      - \\\"3306:3306\\\"\\n    volumes:\\n      - mysql_data:/var/lib/mysql\\n      - ./init.sql:/docker-entrypoint-initdb.d/init.sql\\n    networks:\\n      - wordmaster-network\\n\\n  redis:\\n    image: redis:7-alpine\\n    container_name: wordmaster-redis\\n    ports:\\n      - \\\"6379:6379\\\"\\n    volumes:\\n      - redis_data:/data\\n    networks:\\n      - wordmaster-network\\n\\n  backend:\\n    build: ./wordmaster-backend\\n    container_name: wordmaster-backend\\n    depends_on:\\n      - mysql\\n      - redis\\n    environment:\\n      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/wordmaster\\n      SPRING_DATASOURCE_USERNAME: wordmaster\\n      SPRING_DATASOURCE_PASSWORD: wordmaster123\\n      SPRING_REDIS_HOST: redis\\n      SPRING_REDIS_PORT: 6379\\n    ports:\\n      - \\\"8080:8080\\\"\\n    networks:\\n      - wordmaster-network\\n\\n  nginx:\\n    image: nginx:alpine\\n    container_name: wordmaster-nginx\\n    depends_on:\\n      - backend\\n    ports:\\n      - \\\"80:80\\\"\\n    volumes:\\n      - ./nginx.conf:/etc/nginx/nginx.conf\\n      - ./wordmaster-frontend/dist:/usr/share/nginx/html\\n    networks:\\n      - wordmaster-network\\n\\nvolumes:\\n  mysql_data:\\n  redis_data:\\n\\nnetworks:\\n  wordmaster-network:\\n    driver: bridge\\n```\\n\\n### 5.2 环境配置\\n\\n**application.yml**：\\n```yaml\\nspring:\\n  datasource:\\n    url: jdbc:mysql://localhost:3306/wordmaster\\n    username: wordmaster\\n    password: wordmaster123\\n    driver-class-name: com.mysql.cj.jdbc.Driver\\n  redis:\\n    host: localhost\\n    port: 6379\\n    database: 0\\n  jackson:\\n    date-format: yyyy-MM-dd HH:mm:ss\\n    time-zone: GMT+8\\n\\njwt:\\n  secret: wordmaster-jwt-secret-key-2023\\n  expiration: 86400000  # 24小时\\n\\nnetease:\\n  api:\\n    key: ${NETEASE_API_KEY}\\n    secret: ${NETEASE_API_SECRET}\\n\\nserver:\\n  port: 8080\\n  servlet:\\n    context-path: /api\\n```\\n\\n## 6. 开发计划\\n\\n### 6.1 开发阶段\\n\\n**第一阶段（1-2周）**：\\n- 数据库设计和初始化\\n- 用户管理模块开发\\n- 基础框架搭建\\n\\n**第二阶段（2-3周）**：\\n- 单词模块开发\\n- 学习模块核心功能\\n- 外部API集成\\n\\n**第三阶段（1-2周）**：\\n- 统计模块开发\\n- 前端页面开发\\n- 测试和优化\\n\\n**第四阶段（1周）**：\\n- 部署配置\\n- 文档编写\\n- 上线准备\\n\\n### 6.2 测试策略\\n\\n**单元测试**：使用JUnit + Mockito测试业务逻辑\\n**集成测试**：测试API接口和数据库交互\\n**性能测试**：使用JMeter测试并发性能\\n**安全测试**：检查SQL注入、XSS等安全漏洞\"}"
+}</pre>
+            </div>
+        </div>
+
+        <div class="event tool-result">
+            <div class="event-header">
+                <span class="step">Step 2</span>
+                <span class="timestamp">2026-04-01T23:36:33.262387</span>
+                <span class="event-type">tool_result</span>
+                <span class="expandable" onclick="toggleDetails('details-10')">[▼ 详情]</span>
+            </div>
+            <div id="details-10" class="details">
+                <pre>{
+  "tool_name": "Write",
+  "tool_call_id": "call_00_Uz1jheuRfiCljpo3oKAwTEIw",
+  "result": "成功写入 DESIGN.md (26738 字节)",
+  "is_builtin": false
+}</pre>
+            </div>
+        </div>
+
+        <div class="event">
+            <div class="event-header">
+                <span class="step">Step 2</span>
+                <span class="timestamp">2026-04-01T23:36:33.277865</span>
+                <span class="event-type">step_finish</span>
+                <span class="expandable" onclick="toggleDetails('details-11')">[▼ 详情]</span>
+            </div>
+            <div id="details-11" class="details">
+                <pre>{
+  "step": 2,
+  "tool_results_count": 1
+}</pre>
+            </div>
+        </div>
+
+        <div class="event">
+            <div class="event-header">
+                <span class="step">Step 3</span>
+                <span class="timestamp">2026-04-01T23:36:33.293590</span>
+                <span class="event-type">step_start</span>
+                <span class="expandable" onclick="toggleDetails('details-12')">[▼ 详情]</span>
+            </div>
+            <div id="details-12" class="details">
+                <pre>{
+  "step": 3,
+  "max_steps": 100,
+  "messages_count": 15
+}</pre>
+            </div>
+        </div>
+
+        <div class="event model-output">
+            <div class="event-header">
+                <span class="step">Step 3</span>
+                <span class="timestamp">2026-04-01T23:36:41.839493</span>
+                <span class="event-type">model_output</span>
+                <span class="expandable" onclick="toggleDetails('details-13')">[▼ 详情]</span>
+            </div>
+            <div id="details-13" class="details">
+                <pre>{
+  "content": "软件设计文档（DESIGN.md）已生成完成。\n\n文档包含：\n- 系统架构设计（SpringBoot + UniApp前后端分离架构）\n- 6个API接口模块定义（用户认证、单词、学习、词库、统计）\n- 5张数据表设计（用户、单词、学习记录、词库、统计记录）\n- 完整的数据库初始化脚本（包含示例数据）\n- 核心模块设计（学习算法、外部API集成、安全模块）\n- 部署设计（Docker容器化部署）\n\n请检查确认。如需修改请告诉我具体内容，确认后说\"继续\"进入代码生成阶段。",
+  "tool_calls_count": 0,
+  "tool_calls": []
+}</pre>
+            </div>
+        </div>
+
+        <div class="event">
+            <div class="event-header">
+                <span class="step">Step -</span>
+                <span class="timestamp">2026-04-01T23:36:41.840501</span>
+                <span class="event-type">session_end</span>
+                <span class="expandable" onclick="toggleDetails('details-14')">[▼ 详情]</span>
+            </div>
+            <div id="details-14" class="details">
+                <pre>{
+  "duration": 268.230379,
+  "total_steps": 3,
+  "final_answer": "软件设计文档（DESIGN.md）已生成完成。\n\n文档包含：\n- 系统架构设计（SpringBoot + UniApp前后端分离架构）\n- 6个API接口模块定义（用户认证、单词、学习、词库、统计）\n- 5张数据表设计（用户、单词、学习记录、词库、统计记录）\n- 完整的数据库初始化脚本（包含示例数据）\n- 核心模块设计（学习算法、外部API集成、安全模块）\n- 部署设计（Docker容器化部署）\n\n请检查确认。如需修改请告诉我具体内容，确认后说\"继续\"进入代码生成阶段。",
+  "status": "success"
+}</pre>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="stats-panel">
+        <h2>📊 会话统计</h2>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span class="stat-label">总步骤数</span>
+                <span class="stat-value">3</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">总 Token</span>
+                <span class="stat-value">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">总成本</span>
+                <span class="stat-value">$0.0000</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">会话时长</span>
+                <span class="stat-value">268.2s</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">模型调用次数</span>
+                <span class="stat-value">3</span>
+            </div>
+        </div>
+
+        <h3>🔧 工具调用统计</h3>
+        <table class="tool-stats">
+            <tr><th>工具名称</th><th>调用次数</th></tr>
+            <tr><td>Read</td><td>1</td></tr>
+<tr><td>Write</td><td>1</td></tr>
+
+        </table>
+
+        
+    </div>
+
+    <script>
+        function toggleDetails(id) {
+            const el = document.getElementById(id);
+            if (el.style.display === 'none' || el.style.display === '') {
+                el.style.display = 'block';
+            } else {
+                el.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

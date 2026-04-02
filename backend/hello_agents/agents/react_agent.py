@@ -99,20 +99,35 @@ class ReActAgent(Agent):
         Returns:
             最终答案
         """
+        from hello_agents.observability import TraceLogger
+
         session_start_time = datetime.now()
 
-        try:
-            # 执行主逻辑
-            final_answer = self._run_impl(input_text, session_start_time, **kwargs)
+        trace_logger: Optional[TraceLogger] = None
+        if self.config.trace_enabled:
+            trace_logger = TraceLogger(
+                output_dir=self.config.trace_dir,
+                sanitize=self.config.trace_sanitize,
+                html_include_raw_response=self.config.trace_html_include_raw_response
+            )
+            trace_logger.log_event(
+                "session_start",
+                {
+                    "agent_name": self.name,
+                    "agent_type": self.__class__.__name__,
+                    "config": self.config.dict()
+                }
+            )
 
-            # 更新元数据
+        try:
+            final_answer = self._run_impl(input_text, session_start_time, trace_logger, **kwargs)
+
             self._session_metadata["total_steps"] = getattr(self, '_current_step', 0)
             self._session_metadata["total_tokens"] = getattr(self, '_total_tokens', 0)
 
             return final_answer
 
         except KeyboardInterrupt:
-            # Ctrl+C 时自动保存
             print("\n⚠️ 用户中断，自动保存会话...")
             if self.session_store:
                 try:
@@ -123,7 +138,6 @@ class ReActAgent(Agent):
             raise
 
         except Exception as e:
-            # 错误时也尝试保存
             print(f"\n❌ 发生错误: {e}")
             if self.session_store:
                 try:
@@ -133,13 +147,14 @@ class ReActAgent(Agent):
                     print(f"❌ 保存失败: {save_error}")
             raise
 
-    def _run_impl(self, input_text: str, session_start_time, **kwargs) -> str:
+    def _run_impl(self, input_text: str, session_start_time, trace_logger, **kwargs) -> str:
         """
         ReAct Agent 主逻辑实现
 
         Args:
             input_text: 用户问题
             session_start_time: 会话开始时间
+            trace_logger: TraceLogger 实例
             **kwargs: 其他参数
 
         Returns:
@@ -155,8 +170,8 @@ class ReActAgent(Agent):
         total_tokens = 0
 
         # 记录用户消息
-        if self.trace_logger:
-            self.trace_logger.log_event(
+        if trace_logger:
+            trace_logger.log_event(
                 "message_written",
                 {"role": "user", "content": input_text}
             )
@@ -180,8 +195,8 @@ class ReActAgent(Agent):
                 )
             except Exception as e:
                 print(f"❌ LLM 调用失败: {e}")
-                if self.trace_logger:
-                    self.trace_logger.log_event(
+                if trace_logger:
+                    trace_logger.log_event(
                         "error",
                         {"error_type": "LLM_ERROR", "message": str(e)},
                         step=current_step
@@ -197,8 +212,8 @@ class ReActAgent(Agent):
                 self._total_tokens = total_tokens
 
             # 记录模型输出
-            if self.trace_logger:
-                self.trace_logger.log_event(
+            if trace_logger:
+                trace_logger.log_event(
                     "model_output",
                     {
                         "content": response.content or "",
@@ -222,9 +237,9 @@ class ReActAgent(Agent):
                 self.add_message(Message(input_text, "user"))
                 self.add_message(Message(final_answer, "assistant"))
 
-                if self.trace_logger:
+                if trace_logger:
                     duration = (datetime.now() - session_start_time).total_seconds()
-                    self.trace_logger.log_event(
+                    trace_logger.log_event(
                         "session_end",
                         {
                             "duration": duration,
@@ -233,7 +248,7 @@ class ReActAgent(Agent):
                             "status": "success"
                         }
                     )
-                    self.trace_logger.finalize()
+                    trace_logger.finalize()
 
                 return final_answer
 
@@ -271,8 +286,8 @@ class ReActAgent(Agent):
                     continue
 
                 # 记录工具调用
-                if self.trace_logger:
-                    self.trace_logger.log_event(
+                if trace_logger:
+                    trace_logger.log_event(
                         "tool_call",
                         {
                             "tool_name": tool_name,
@@ -288,8 +303,8 @@ class ReActAgent(Agent):
                     print(f"🔧 {tool_name}: {result['content']}")
 
                     # 记录工具结果
-                    if self.trace_logger:
-                        self.trace_logger.log_event(
+                    if trace_logger:
+                        trace_logger.log_event(
                             "tool_result",
                             {
                                 "tool_name": tool_name,
@@ -309,9 +324,9 @@ class ReActAgent(Agent):
                         self.add_message(Message(input_text, "user"))
                         self.add_message(Message(final_answer, "assistant"))
 
-                        if self.trace_logger:
+                        if trace_logger:
                             duration = (datetime.now() - session_start_time).total_seconds()
-                            self.trace_logger.log_event(
+                            trace_logger.log_event(
                                 "session_end",
                                 {
                                     "duration": duration,
@@ -320,7 +335,7 @@ class ReActAgent(Agent):
                                     "status": "success"
                                 }
                             )
-                            self.trace_logger.finalize()
+                            trace_logger.finalize()
 
                         return final_answer
 
@@ -338,8 +353,8 @@ class ReActAgent(Agent):
                     result = self._execute_tool_call(tool_name, arguments)
 
                     # 记录工具结果
-                    if self.trace_logger:
-                        self.trace_logger.log_event(
+                    if trace_logger:
+                        trace_logger.log_event(
                             "tool_result",
                             {
                                 "tool_name": tool_name,
@@ -371,9 +386,9 @@ class ReActAgent(Agent):
         self.add_message(Message(final_answer, "assistant"))
 
         # 记录会话结束（超时）
-        if self.trace_logger:
+        if trace_logger:
             duration = (datetime.now() - session_start_time).total_seconds()
-            self.trace_logger.log_event(
+            trace_logger.log_event(
                 "session_end",
                 {
                     "duration": duration,
@@ -382,7 +397,7 @@ class ReActAgent(Agent):
                     "status": "timeout"
                 }
             )
-            self.trace_logger.finalize()
+            trace_logger.finalize()
 
         return final_answer
 
@@ -401,12 +416,18 @@ class ReActAgent(Agent):
 
         history = self.get_history()
         for msg in history:
-            if msg.role == "tool":
-                continue
-            messages.append({
+            msg_dict = {
                 "role": msg.role,
                 "content": msg.content
-            })
+            }
+            if msg.role == "assistant" and msg.tool_calls:
+                msg_dict["tool_calls"] = msg.tool_calls
+            if msg.role == "tool":
+                if msg.tool_call_id:
+                    msg_dict["tool_call_id"] = msg.tool_call_id
+                if msg.tool_name:
+                    msg_dict["name"] = msg.tool_name
+            messages.append(msg_dict)
 
         messages.append({
             "role": "user",

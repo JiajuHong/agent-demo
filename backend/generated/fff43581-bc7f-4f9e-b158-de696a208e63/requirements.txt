@@ -1,0 +1,14 @@
+# 简单计算器 - 依赖文件
+# 本项目仅使用Python标准库，无需安装额外依赖
+
+# Python版本要求
+python>=3.6
+
+# 标准库依赖（自动包含）：
+# - math: 数学函数
+# - re: 正则表达式
+# - typing: 类型提示
+
+# 运行说明：
+# 直接运行 calculator.py 即可
+# python calculator.py

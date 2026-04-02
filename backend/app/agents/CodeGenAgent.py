@@ -56,7 +56,25 @@ class CodeGenAgent(ReActAgent):
         Yields:
             StreamEvent: 流式事件
         """
+        from hello_agents.observability import TraceLogger
+
         session_start_time = datetime.now()
+
+        trace_logger: Optional[TraceLogger] = None
+        if self.config.trace_enabled:
+            trace_logger = TraceLogger(
+                output_dir=self.config.trace_dir,
+                sanitize=self.config.trace_sanitize,
+                html_include_raw_response=self.config.trace_html_include_raw_response
+            )
+            trace_logger.log_event(
+                "session_start",
+                {
+                    "agent_name": self.name,
+                    "agent_type": self.__class__.__name__,
+                    "input_text": input_text
+                }
+            )
 
         yield StreamEvent.create(
             StreamEventType.AGENT_START,
@@ -65,16 +83,6 @@ class CodeGenAgent(ReActAgent):
         )
 
         await self._emit_event(EventType.AGENT_START, on_start, input_text=input_text)
-
-        if self.trace_logger:
-            self.trace_logger.log_event(
-                "session_start",
-                {
-                    "agent_name": self.name,
-                    "agent_type": self.__class__.__name__,
-                    "input_text": input_text
-                }
-            )
 
         try:
             messages = self._build_messages(input_text)
@@ -89,6 +97,8 @@ class CodeGenAgent(ReActAgent):
             while current_step < self.max_steps:
                 current_step += 1
 
+                messages = self._build_messages("")
+
                 yield StreamEvent.create(
                     StreamEventType.STEP_START,
                     self.name,
@@ -100,8 +110,8 @@ class CodeGenAgent(ReActAgent):
 
                 print(f"\n--- 第 {current_step} 步 ---")
 
-                if self.trace_logger:
-                    self.trace_logger.log_event(
+                if trace_logger:
+                    trace_logger.log_event(
                         "step_start",
                         {
                             "step": current_step,
@@ -205,8 +215,8 @@ class CodeGenAgent(ReActAgent):
                                     print(chunk.arguments, end="", flush=True)
                     print(")")
 
-                    if self.trace_logger:
-                        self.trace_logger.log_event(
+                    if trace_logger:
+                        trace_logger.log_event(
                             "model_output",
                             {
                                 "content": full_response or "",
@@ -232,8 +242,8 @@ class CodeGenAgent(ReActAgent):
 
                     await self._emit_event(EventType.AGENT_ERROR, on_error, error=error_msg)
 
-                    if self.trace_logger:
-                        self.trace_logger.log_event(
+                    if trace_logger:
+                        trace_logger.log_event(
                             "error",
                             {
                                 "error_type": "LLM_ERROR",
@@ -268,9 +278,9 @@ class CodeGenAgent(ReActAgent):
                     # self.add_message(Message(input_text, "user"))
                     self.add_message(Message(final_answer, "assistant"))
 
-                    if self.trace_logger:
+                    if trace_logger:
                         duration = (datetime.now() - session_start_time).total_seconds()
-                        self.trace_logger.log_event(
+                        trace_logger.log_event(
                             "session_end",
                             {
                                 "duration": duration,
@@ -279,7 +289,7 @@ class CodeGenAgent(ReActAgent):
                                 "status": "success"
                             }
                         )
-                        self.trace_logger.finalize()
+                        trace_logger.finalize()
 
                     return
 
@@ -298,12 +308,25 @@ class CodeGenAgent(ReActAgent):
                         for tc in tool_calls
                     ]
                 })
-                if full_response:
-                    self.add_message(Message(full_response, "assistant"))
+                self.add_message(Message(
+                    full_response,
+                    "assistant",
+                    tool_calls=[
+                        {
+                            "id": tc.id,
+                            "type": "function",
+                            "function": {
+                                "name": tc.name,
+                                "arguments": tc.arguments
+                            }
+                        }
+                        for tc in tool_calls
+                    ] if tool_calls else None
+                ))
 
-                if self.trace_logger:
+                if trace_logger:
                     for tc in tool_calls:
-                        self.trace_logger.log_event(
+                        trace_logger.log_event(
                             "tool_call",
                             {
                                 "tool_name": tc.name,
@@ -341,6 +364,8 @@ class CodeGenAgent(ReActAgent):
                         self.add_message(Message(
                             content=result_dict["content"],
                             role="tool",
+                            tool_name=tool_name,
+                            tool_call_id=tool_call_id,
                             metadata=metadata
                         ))
 
@@ -351,8 +376,8 @@ class CodeGenAgent(ReActAgent):
                         "content": result_dict["content"]
                     })
 
-                    if self.trace_logger:
-                        self.trace_logger.log_event(
+                    if trace_logger:
+                        trace_logger.log_event(
                             "tool_result",
                             {
                                 "tool_name": tool_name,
@@ -382,9 +407,9 @@ class CodeGenAgent(ReActAgent):
                         # self.add_message(Message(input_text, "user"))
                         self.add_message(Message(final_answer, "assistant"))
 
-                        if self.trace_logger:
+                        if trace_logger:
                             duration = (datetime.now() - session_start_time).total_seconds()
-                            self.trace_logger.log_event(
+                            trace_logger.log_event(
                                 "session_end",
                                 {
                                     "duration": duration,
@@ -393,7 +418,7 @@ class CodeGenAgent(ReActAgent):
                                     "status": "success"
                                 }
                             )
-                            self.trace_logger.finalize()
+                            trace_logger.finalize()
 
                         return
 
@@ -403,8 +428,8 @@ class CodeGenAgent(ReActAgent):
                     step=current_step
                 )
 
-                if self.trace_logger:
-                    self.trace_logger.log_event(
+                if trace_logger:
+                    trace_logger.log_event(
                         "step_finish",
                         {
                             "step": current_step,
@@ -429,9 +454,9 @@ class CodeGenAgent(ReActAgent):
                 # self.add_message(Message(input_text, "user"))
                 self.add_message(Message(final_answer, "assistant"))
 
-                if self.trace_logger:
+                if trace_logger:
                     duration = (datetime.now() - session_start_time).total_seconds()
-                    self.trace_logger.log_event(
+                    trace_logger.log_event(
                         "session_end",
                         {
                             "duration": duration,
@@ -440,7 +465,7 @@ class CodeGenAgent(ReActAgent):
                             "status": "max_steps_reached"
                         }
                     )
-                    self.trace_logger.finalize()
+                    trace_logger.finalize()
 
         except Exception as e:
             error_msg = f"Agent 执行失败: {str(e)}"
@@ -454,8 +479,8 @@ class CodeGenAgent(ReActAgent):
 
             await self._emit_event(EventType.AGENT_ERROR, on_error, error=error_msg)
 
-            if self.trace_logger:
-                self.trace_logger.log_event(
+            if trace_logger:
+                trace_logger.log_event(
                     "error",
                     {
                         "error_type": type(e).__name__,
@@ -463,7 +488,7 @@ class CodeGenAgent(ReActAgent):
                     },
                     step=current_step if 'current_step' in dir() else None
                 )
-                self.trace_logger.finalize()
+                trace_logger.finalize()
 
             raise
 

@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能抽烟计时器 - 控制抽烟频率，关注健康</title>
+    <meta name="description" content="一个帮助您控制抽烟频率、记录抽烟习惯的健康管理工具">
+    
+    <!-- 字体和图标 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- 图表库 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- 样式文件 -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <!-- 应用图标 -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚭</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 头部 -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1 class="app-title">
+                    <i class="fas fa-smoking-ban"></i>
+                    智能抽烟计时器
+                </h1>
+                <p class="app-subtitle">控制抽烟频率，关注健康生活</p>
+            </div>
+            <div class="theme-switcher">
+                <button id="theme-toggle" class="theme-btn" title="切换主题">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 左侧：计时器控制区 -->
+            <section class="timer-section">
+                <div class="timer-card">
+                    <div class="timer-display">
+                        <div class="timer-time" id="timer-display">00:00:00</div>
+                        <div class="timer-status" id="timer-status">已停止</div>
+                    </div>
+                    
+                    <div class="timer-controls">
+                        <button id="start-btn" class="btn btn-primary btn-large">
+                            <i class="fas fa-play"></i> 开始计时
+                        </button>
+                        <button id="pause-btn" class="btn btn-secondary btn-large" disabled>
+                            <i class="fas fa-pause"></i> 暂停
+                        </button>
+                        <button id="record-btn" class="btn btn-success btn-large">
+                            <i class="fas fa-smoking"></i> 记录抽烟
+                        </button>
+                        <button id="reset-btn" class="btn btn-danger btn-large">
+                            <i class="fas fa-redo"></i> 重置
+                        </button>
+                    </div>
+                    
+                    <div class="timer-info">
+                        <div class="info-item">
+                            <span class="info-label">目标间隔：</span>
+                            <span class="info-value" id="target-interval">2小时</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">当前间隔：</span>
+                            <span class="info-value" id="current-interval">0分钟</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">进度：</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <span class="progress-text" id="progress-text">0%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 目标设置 -->
+                <div class="settings-card">
+                    <h3><i class="fas fa-bullseye"></i> 目标设置</h3>
+                    <div class="setting-item">
+                        <label for="target-slider">目标间隔：<span id="target-value">2</span> 小时</label>
+                        <input type="range" id="target-slider" min="1" max="24" value="2" step="0.5">
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="sound-toggle" checked>
+                            <i class="fas fa-volume-up"></i> 声音提醒
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="notification-toggle">
+                            <i class="fas fa-bell"></i> 桌面通知
+                        </label>
+                    </div>
+                    <button id="save-settings" class="btn btn-outline">
+                        <i class="fas fa-save"></i> 保存设置
+                    </button>
+                </div>
+            </section>
+
+            <!-- 中间：数据统计区 -->
+            <section class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="today-count">0</div>
+                            <div class="stat-label">今日次数</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="avg-interval">0</div>
+                            <div class="stat-label">平均间隔</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="max-interval">0</div>
+                            <div class="stat-label">最长间隔</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="saved-money">¥0</div>
+                            <div class="stat-label">节省金额</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 图表区 -->
+                <div class="chart-card">
+                    <h3><i class="fas fa-chart-line"></i> 抽烟趋势</h3>
+                    <div class="chart-container">
+                        <canvas id="smoking-chart"></canvas>
+                    </div>
+                    <div class="chart-controls">
+                        <button id="chart-day" class="btn btn-small active">今日</button>
+                        <button id="chart-week" class="btn btn-small">本周</button>
+                        <button id="chart-month" class="btn btn-small">本月</button>
+                    </div>
+                </div>
+                
+                <!-- 记录列表 -->
+                <div class="records-card">
+                    <h3><i class="fas fa-history"></i> 最近记录</h3>
+                    <div class="records-list" id="records-list">
+                        <div class="empty-records">
+                            <i class="fas fa-clock"></i>
+                            <p>暂无抽烟记录</p>
+                            <p class="small-text">点击"记录抽烟"按钮开始记录</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 右侧：健康信息区 -->
+            <section class="health-section">
+                <div class="health-card">
+                    <h3><i class="fas fa-heartbeat"></i> 健康进展</h3>
+                    <div class="health-progress">
+                        <div class="progress-circle">
+                            <svg width="120" height="120" viewBox="0 0 120 120">
+                                <circle cx="60" cy="60" r="54" fill="none" stroke="#e0e0e0" stroke-width="12"></circle>
+                                <circle cx="60" cy="60" r="54" fill="none" stroke="#4CAF50" stroke-width="12" 
+                                        stroke-linecap="round" transform="rotate(-90 60 60)"
+                                        stroke-dasharray="339.292" stroke-dashoffset="339.292" id="health-circle">
+                                </circle>
+                                <text x="60" y="65" text-anchor="middle" font-size="24" font-weight="bold" fill="#333" id="health-percent">0%</text>
+                            </svg>
+                        </div>
+                        <div class="health-info">
+                            <p id="health-message">开始记录抽烟间隔，改善健康状况</p>
+                            <div class="health-tip">
+                                <i class="fas fa-lightbulb"></i>
+                                <span id="health-tip">每减少一支烟，肺部功能就会改善一点</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 成就系统 -->
+                <div class="achievements-card">
+                    <h3><i class="fas fa-medal"></i> 成就</h3>
+                    <div class="achievements-grid">
+                        <div class="achievement" data-level="bronze">
+                            <div class="achievement-icon">
+                                <i class="fas fa-medal"></i>
+                            </div>
+                            <div class="achievement-info">
+                                <div class="achievement-title">青铜</div>
+                                <div class="achievement-desc">连续3天达标</div>
+                            </div>
+                            <div class="achievement-status" id="bronze-status">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="achievement" data-level="silver">
+                            <div class="achievement-icon">
+                                <i class="fas fa-medal"></i>
+                            </div>
+                            <div class="achievement-info">
+                                <div class="achievement-title">白银</div>
+                                <div class="achievement-desc">连续7天达标</div>
+                            </div>
+                            <div class="achievement-status" id="silver-status">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="achievement" data-level="gold">
+                            <div class="achievement-icon">
+                                <i class="fas fa-medal"></i>
+                            </div>
+                            <div class="achievement-info">
+                                <div class="achievement-title">黄金</div>
+                                <div class="achievement-desc">连续30天达标</div>
+                            </div>
+                            <div class="achievement-status" id="gold-status">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="achievement" data-level="diamond">
+                            <div class="achievement-icon">
+                                <i class="fas fa-gem"></i>
+                            </div>
+                            <div class="achievement-info">
+                                <div class="achievement-title">钻石</div>
+                                <div class="achievement-desc">连续90天达标</div>
+                            </div>
+                            <div class="achievement-status" id="diamond-status">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 健康小贴士 -->
+                <div class="tips-card">
+                    <h3><i class="fas fa-comment-medical"></i> 健康小贴士</h3>
+                    <div class="tips-slider">
+                        <div class="tip active">
+                            <p>戒烟20分钟后，心率和血压会恢复正常水平。</p>
+                        </div>
+                        <div class="tip">
+                            <p>戒烟12小时后，血液中的一氧化碳水平会恢复正常。</p>
+                        </div>
+                        <div class="tip">
+                            <p>戒烟2-12周后，血液循环改善，肺功能增强。</p>
+                        </div>
+                        <div class="tip">
+                            <p>戒烟1年后，冠心病风险降低到吸烟者的一半。</p>
+                        </div>
+                    </div>
+                    <div class="tips-controls">
+                        <button id="prev-tip" class="btn btn-small"><i class="fas fa-chevron-left"></i></button>
+                        <span class="tip-counter">1/4</span>
+                        <button id="next-tip" class="btn btn-small"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 底部信息 -->
+        <footer class="app-footer">
+            <div class="footer-content">
+                <p>© 2024 智能抽烟计时器 | 关注健康，从控制开始</p>
+                <div class="footer-links">
+                    <button id="export-btn" class="btn-link">
+                        <i class="fas fa-download"></i> 导出数据
+                    </button>
+                    <button id="import-btn" class="btn-link">
+                        <i class="fas fa-upload"></i> 导入数据
+                    </button>
+                    <button id="clear-btn" class="btn-link">
+                        <i class="fas fa-trash"></i> 清除数据
+                    </button>
+                    <button id="help-btn" class="btn-link">
+                        <i class="fas fa-question-circle"></i> 帮助
+                    </button>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 模态框 -->
+    <div id="help-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-question-circle"></i> 使用帮助</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h4>如何使用抽烟计时器？</h4>
+                <ol>
+                    <li>点击"开始计时"按钮启动计时器</li>
+                    <li>当您想抽烟时，点击"记录抽烟"按钮</li>
+                    <li>计时器会重置并开始新的计时周期</li>
+                    <li>通过统计数据了解您的抽烟习惯</li>
+                    <li>设置目标间隔，逐步延长抽烟时间</li>
+                </ol>
+                
+                <h4>功能说明</h4>
+                <ul>
+                    <li><strong>计时器</strong>: 显示距离上次抽烟的时间</li>
+                    <li><strong>数据统计</strong>: 显示今日次数、平均间隔等数据</li>
+                    <li><strong>目标设置</strong>: 设置期望的抽烟间隔时间</li>
+                    <li><strong>健康信息</strong>: 显示戒烟带来的健康改善</li>
+                    <li><strong>成就系统</strong>: 激励您坚持控制抽烟频率</li>
+                </ul>
+                
+                <p class="note"><i class="fas fa-info-circle"></i> 所有数据都存储在您的浏览器本地，保护您的隐私。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 确认对话框 -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content small">
+            <div class="modal-body">
+                <h4 id="confirm-title">确认操作</h4>
+                <p id="confirm-message">您确定要执行此操作吗？</p>
+            </div>
+            <div class="modal-footer">
+                <button id="confirm-cancel" class="btn btn-secondary">取消</button>
+                <button id="confirm-ok" class="btn btn-danger">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导入文件输入 -->
+    <input type="file" id="import-file" accept=".json" style="display: none;">
+
+    <!-- JavaScript文件 -->
+    <script src="js/utils/time.js"></script>
+    <script src="js/utils/math.js"></script>
+    <script src="js/utils/validation.js"></script>
+    
+    <script src="js/modules/eventbus.js"></script>
+    <script src="js/modules/storage.js"></script>
+    <script src="js/modules/timer.js"></script>
+    <script src="js/modules/data.js"></script>
+    <script src="js/modules/settings.js"></script>
+    <script src="js/modules/health.js"></script>
+    
+    <script src="js/ui/components.js"></script>
+    <script src="js/ui/theme.js"></script>
+    
+    <script src="js/app.js"></script>
+</body>
+</html>
