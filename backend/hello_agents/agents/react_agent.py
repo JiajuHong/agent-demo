@@ -402,10 +402,7 @@ class ReActAgent(Agent):
         return final_answer
 
     def _build_messages(self, input_text: str) -> List[Dict[str, str]]:
-        """构建消息列表
-
-        只包含文本消息，跳过 tool 消息（避免 OpenAI API 格式问题）。
-        """
+        """构建消息列表"""
         messages = []
 
         if self.system_prompt:
@@ -1173,16 +1170,16 @@ class ReActAgent(Agent):
         results = []
 
         # 分组：内置工具 vs 用户工具
-        builtin_calls = [tc for tc in tool_calls if tc.function.name in self._builtin_tools]
-        user_calls = [tc for tc in tool_calls if tc.function.name not in self._builtin_tools]
+        builtin_calls = [tc for tc in tool_calls if tc.name in self._builtin_tools]
+        user_calls = [tc for tc in tool_calls if tc.name not in self._builtin_tools]
 
         # 1. 串行执行内置工具
         for tc in builtin_calls:
-            tool_name = tc.function.name
+            tool_name = tc.name
             tool_call_id = tc.id
 
             try:
-                arguments = json.loads(tc.function.arguments)
+                arguments = json.loads(tc.arguments)
             except json.JSONDecodeError as e:
                 results.append((tool_name, tool_call_id, {"content": f"错误：参数格式不正确 - {str(e)}"}))
                 continue
@@ -1218,11 +1215,11 @@ class ReActAgent(Agent):
 
             async def execute_one(tc):
                 async with semaphore:
-                    tool_name = tc.function.name
+                    tool_name = tc.name
                     tool_call_id = tc.id
 
                     try:
-                        arguments = json.loads(tc.function.arguments)
+                        arguments = json.loads(tc.arguments)
                     except json.JSONDecodeError as e:
                         return (tool_name, tool_call_id, {"content": f"错误：参数格式不正确 - {str(e)}"})
 
